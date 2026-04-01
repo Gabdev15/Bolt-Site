@@ -35,26 +35,32 @@ const CARS = [
 const STEPS = ['Véhicule', 'Date & Heure', 'Adresse', 'Confirmation'];
 
 const StepIndicator = ({ current }) => (
-  <div className="flex items-center gap-0">
+  <div className="flex items-center justify-center gap-3 sm:gap-4">
     {STEPS.map((label, i) => {
       const done = i < current;
       const active = i === current;
       return (
         <React.Fragment key={i}>
           <div className="flex flex-col items-center gap-1.5">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-              done ? 'bg-bolt-green text-white shadow-md shadow-bolt-green/30'
-              : active ? 'bg-bolt-green text-white shadow-md shadow-bolt-green/30'
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
+              done ? 'bg-bolt-green text-white shadow-lg shadow-bolt-green/25'
+              : active ? 'ring-2 ring-bolt-green ring-offset-2 bg-white text-bolt-green'
               : 'bg-gray-100 text-gray-400'
             }`}>
-              {done ? <CheckCircle size={14} /> : i + 1}
+              {done ? <CheckCircle size={18} className="stroke-2" /> : i + 1}
             </div>
-            <span className={`text-[10px] font-semibold hidden sm:block ${active ? 'text-bolt-green' : done ? 'text-bolt-green/60' : 'text-gray-400'}`}>
+            <span className={`text-[11px] font-semibold hidden sm:block transition-colors duration-300 ${
+              active ? 'text-bolt-green font-bold'
+              : done ? 'text-bolt-green/70'
+              : 'text-gray-400'
+            }`}>
               {label}
             </span>
           </div>
           {i < STEPS.length - 1 && (
-            <div className={`h-0.5 w-10 sm:w-16 mx-1 mb-4 transition-all duration-500 ${done ? 'bg-bolt-green' : 'bg-gray-100'}`} />
+            <div className={`h-1 w-8 sm:w-12 mx-0.5 sm:mx-1 transition-all duration-500 rounded-full ${
+              done ? 'bg-bolt-green shadow-md shadow-bolt-green/20' : 'bg-gray-200'
+            }`} />
           )}
         </React.Fragment>
       );
@@ -64,10 +70,10 @@ const StepIndicator = ({ current }) => (
 
 /* ── Step 1 — Choisir un véhicule ── */
 const StepVehicle = ({ selected, onSelect }) => (
-  <div className="space-y-5">
+  <div className="space-y-6">
     <div>
       <h2 className="text-2xl font-bold text-bolt-dark">Choisissez votre véhicule</h2>
-      <p className="text-gray-400 text-sm mt-1">Sélectionnez la voiture qui vous convient</p>
+      <p className="text-gray-500 text-sm mt-2">Sélectionnez la voiture qui vous convient le mieux</p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {CARS.map(car => (
@@ -137,67 +143,67 @@ const StepVehicle = ({ selected, onSelect }) => (
 const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) => (
   <div className="space-y-6 max-w-lg">
     <div>
-      <h2 className="text-2xl font-bold text-bolt-dark">Date & Heure</h2>
-      <p className="text-gray-400 text-sm mt-1">Quand souhaitez-vous conduire ?</p>
+      <h2 className="text-2xl font-bold text-bolt-dark">Quand souhaitez-vous conduire ?</h2>
+      <p className="text-gray-500 text-sm mt-2">Sélectionnez la date, l'heure et la durée</p>
     </div>
 
     {/* Selected car reminder */}
-    <div className="flex items-center gap-3 bg-bolt-green/5 border border-bolt-green/20 rounded-2xl p-4">
-      <img src={car.image} alt={car.name} className="w-14 h-10 object-cover rounded-xl" />
-      <div>
-        <p className="font-bold text-bolt-dark text-sm">{car.name} {car.year}</p>
-        <p className="text-gray-400 text-xs">${car.price}/heure</p>
+    <div className="flex items-center gap-4 bg-white border-2 border-bolt-green/15 rounded-xl p-4 shadow-sm shadow-bolt-green/5">
+      <img src={car.image} alt={car.name} className="w-16 h-12 object-cover rounded-lg" />
+      <div className="flex-1">
+        <p className="font-bold text-bolt-dark text-sm">{car.name} <span className="text-gray-400 font-normal">{car.year}</span></p>
+        <p className="text-bolt-green text-sm font-semibold mt-1">${car.price}<span className="text-gray-400 font-normal">/heure</span></p>
       </div>
     </div>
 
     {/* Date */}
     <div>
-      <label className="text-sm font-bold text-bolt-dark mb-2 block">Date de départ</label>
-      <div className="border-2 border-gray-100 rounded-2xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
-        <Calendar size={18} className="text-gray-300 shrink-0" />
+      <label className="text-sm font-bold text-bolt-dark mb-2.5 block">Date de départ</label>
+      <div className="relative bg-white border-2 border-gray-200 rounded-xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green focus-within:shadow-lg focus-within:shadow-bolt-green/10 transition-all duration-200">
+        <Calendar size={18} className="text-bolt-green shrink-0" />
         <input
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
           min={new Date().toISOString().split('T')[0]}
-          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium"
+          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium placeholder-gray-400"
         />
       </div>
     </div>
 
     {/* Time */}
     <div>
-      <label className="text-sm font-bold text-bolt-dark mb-2 block">Heure de départ</label>
-      <div className="border-2 border-gray-100 rounded-2xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
-        <Clock size={18} className="text-gray-300 shrink-0" />
+      <label className="text-sm font-bold text-bolt-dark mb-2.5 block">Heure de départ</label>
+      <div className="relative bg-white border-2 border-gray-200 rounded-xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green focus-within:shadow-lg focus-within:shadow-bolt-green/10 transition-all duration-200">
+        <Clock size={18} className="text-bolt-green shrink-0" />
         <input
           type="time"
           value={time}
           onChange={e => setTime(e.target.value)}
-          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium"
+          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium placeholder-gray-400"
         />
       </div>
     </div>
 
     {/* Duration */}
     <div>
-      <label className="text-sm font-bold text-bolt-dark mb-2 block">Durée de conduite</label>
-      <div className="border-2 border-gray-100 rounded-2xl h-16 flex items-center px-3 bg-white">
+      <label className="text-sm font-bold text-bolt-dark mb-2.5 block">Durée de conduite</label>
+      <div className="bg-white border-2 border-gray-200 rounded-xl h-16 flex items-center justify-between px-4 transition-all duration-200">
         <button
           type="button"
           onClick={() => setHours(h => Math.max(1, h - 1))}
-          className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl"
+          className="flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 text-gray-600 hover:bg-bolt-green/10 hover:text-bolt-green transition-all duration-200 font-bold text-lg active:scale-95"
         >
           −
         </button>
-        <div className="flex-1 text-center">
-          <span className="text-3xl font-bold text-bolt-dark">{hours}</span>
-          <span className="text-gray-400 text-sm ml-2">{hours > 1 ? 'heures' : 'heure'}</span>
+        <div className="flex-1 text-center px-6">
+          <span className="text-4xl font-bold text-bolt-dark">{hours}</span>
+          <span className="text-gray-500 text-xs font-medium mt-1 block">{hours > 1 ? 'heures' : 'heure'}</span>
         </div>
         <button
           type="button"
           onClick={() => setHours(h => Math.min(24, h + 1))}
-          className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl"
+          className="flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 text-gray-600 hover:bg-bolt-green/10 hover:text-bolt-green transition-all duration-200 font-bold text-lg active:scale-95"
         >
           +
         </button>
@@ -210,43 +216,43 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
 const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
   <div className="space-y-6 max-w-lg">
     <div>
-      <h2 className="text-2xl font-bold text-bolt-dark">Adresse de prise en charge</h2>
-      <p className="text-gray-400 text-sm mt-1">Où voulez-vous récupérer le véhicule ?</p>
+      <h2 className="text-2xl font-bold text-bolt-dark">Où voulez-vous récupérer le véhicule ?</h2>
+      <p className="text-gray-500 text-sm mt-2">Saisissez votre adresse de prise en charge</p>
     </div>
 
-    <div className="border-2 border-gray-100 rounded-2xl flex items-start p-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
-      <MapPin size={18} className="text-bolt-green mt-0.5 shrink-0" />
+    <div className="bg-white border-2 border-gray-200 rounded-xl flex items-start p-4 gap-3 focus-within:border-bolt-green focus-within:shadow-lg focus-within:shadow-bolt-green/10 transition-all duration-200">
+      <MapPin size={18} className="text-bolt-green mt-1 shrink-0" />
       <textarea
         value={address}
         onChange={e => setAddress(e.target.value)}
         placeholder="Ex: 12 Rue de la Paix, 75001 Paris"
         rows={2}
-        className="flex-1 outline-none text-sm bg-transparent text-bolt-dark placeholder-gray-300 font-medium resize-none"
+        className="flex-1 outline-none text-sm bg-transparent text-bolt-dark placeholder-gray-400 font-medium resize-none"
       />
     </div>
 
     {/* Summary preview */}
-    <div className="bg-[#F5F6F7] rounded-2xl p-5 space-y-3">
+    <div className="bg-white border-2 border-gray-100 rounded-xl p-5 space-y-4">
       <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Récapitulatif</p>
-      <div className="flex items-center gap-3">
-        <img src={car.image} alt={car.name} className="w-16 h-11 object-cover rounded-xl" />
+      <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
+        <img src={car.image} alt={car.name} className="w-16 h-12 object-cover rounded-lg" />
         <div>
-          <p className="font-bold text-bolt-dark text-sm">{car.name} {car.year}</p>
-          <p className="text-gray-400 text-xs">{car.type} · {car.seats} places</p>
+          <p className="font-bold text-bolt-dark text-sm">{car.name}</p>
+          <p className="text-gray-500 text-xs mt-0.5">{car.type} · {car.seats} places</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="bg-white rounded-xl p-2.5">
-          <p className="text-gray-400">Date</p>
-          <p className="font-semibold text-bolt-dark mt-0.5">{date || '—'}</p>
+      <div className="grid grid-cols-2 gap-2.5 text-sm">
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p className="text-gray-500 text-xs font-medium">Date</p>
+          <p className="font-bold text-bolt-dark mt-1">{date || '—'}</p>
         </div>
-        <div className="bg-white rounded-xl p-2.5">
-          <p className="text-gray-400">Heure</p>
-          <p className="font-semibold text-bolt-dark mt-0.5">{time || '—'}</p>
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <p className="text-gray-500 text-xs font-medium">Heure</p>
+          <p className="font-bold text-bolt-dark mt-1">{time || '—'}</p>
         </div>
-        <div className="bg-white rounded-xl p-2.5 col-span-2">
-          <p className="text-gray-400">Durée</p>
-          <p className="font-semibold text-bolt-dark mt-0.5">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 col-span-2">
+          <p className="text-gray-500 text-xs font-medium">Durée</p>
+          <p className="font-bold text-bolt-dark mt-1">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
         </div>
       </div>
     </div>
@@ -262,17 +268,37 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
   if (confirmed) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
-        <div className="w-20 h-20 rounded-full bg-bolt-green/10 flex items-center justify-center mb-6">
-          <CheckCircle size={40} className="text-bolt-green" />
+        <div className="w-24 h-24 rounded-full bg-bolt-green/10 flex items-center justify-center mb-6 animate-pulse">
+          <CheckCircle size={48} className="text-bolt-green" />
         </div>
-        <h2 className="text-2xl font-bold text-bolt-dark">Pré-commande envoyée !</h2>
-        <p className="text-gray-400 text-sm mt-3 leading-relaxed">
-          Votre demande a été transmise. Vous recevrez une confirmation par email sous peu.
+        <h2 className="text-3xl font-bold text-bolt-dark">Réservation confirmée !</h2>
+        <p className="text-gray-500 text-sm mt-3 leading-relaxed max-w-xs">
+          Votre demande a été envoyée avec succès. Vous recevrez une confirmation par email sous peu.
         </p>
-        <div className="bg-bolt-green/8 border border-bolt-green/20 rounded-2xl p-4 mt-6 w-full text-left">
-          <p className="text-xs font-bold text-bolt-green uppercase tracking-wider mb-2">Détails</p>
-          <p className="text-sm font-semibold text-bolt-dark">{car.name} · {hours}h · ${total.toFixed(2)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{date} à {time} — {address}</p>
+        <div className="bg-white border-2 border-bolt-green/20 rounded-xl p-5 mt-8 w-full text-left space-y-3">
+          <p className="text-xs font-bold text-bolt-green uppercase tracking-wider">Résumé de la réservation</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+            <p className="text-xs text-gray-500 mb-1">Véhicule</p>
+            <p className="font-bold text-bolt-dark text-sm">{car.name} {car.year}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <p className="text-gray-500 font-medium mb-1">Durée</p>
+              <p className="font-bold text-bolt-dark">{hours}h</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <p className="text-gray-500 font-medium mb-1">Prix</p>
+              <p className="font-bold text-bolt-green">${total.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <p className="text-gray-500 font-medium mb-1">Date</p>
+              <p className="font-bold text-bolt-dark">{date}</p>
+            </div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-gray-500 text-xs font-medium mb-1">Adresse</p>
+            <p className="text-bolt-dark text-xs font-medium">{address}</p>
+          </div>
         </div>
       </div>
     );
@@ -282,63 +308,63 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
     <div className="space-y-5 max-w-lg">
       <div>
         <h2 className="text-2xl font-bold text-bolt-dark">Confirmez votre réservation</h2>
-        <p className="text-gray-400 text-sm mt-1">Vérifiez les détails avant de confirmer</p>
+        <p className="text-gray-500 text-sm mt-2">Vérifiez tous les détails avant de confirmer</p>
       </div>
 
       {/* Car */}
-      <div className="border-2 border-gray-100 rounded-2xl overflow-hidden">
+      <div className="bg-white border-2 border-gray-100 rounded-xl overflow-hidden shadow-sm">
         <div className="relative">
-          <img src={car.image} alt={car.name} className="w-full h-36 object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="absolute bottom-3 left-4">
-            <p className="text-white font-bold text-lg leading-tight">{car.name} {car.year}</p>
-            <p className="text-white/60 text-xs">{car.type} · {car.seats} places</p>
+          <img src={car.image} alt={car.name} className="w-full h-40 object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <p className="text-white font-bold text-lg leading-tight">{car.name}</p>
+            <p className="text-white/70 text-xs mt-0.5">{car.type} · {car.seats} places · {car.year}</p>
           </div>
         </div>
-        <div className="p-4 bg-white grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-gray-400 text-xs">Date</p>
-            <p className="font-semibold text-bolt-dark mt-0.5">{date}</p>
+        <div className="p-5 grid grid-cols-2 gap-3">
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-gray-500 text-xs font-medium">Date</p>
+            <p className="font-bold text-bolt-dark mt-1 text-sm">{date}</p>
           </div>
-          <div>
-            <p className="text-gray-400 text-xs">Heure</p>
-            <p className="font-semibold text-bolt-dark mt-0.5">{time}</p>
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-gray-500 text-xs font-medium">Heure</p>
+            <p className="font-bold text-bolt-dark mt-1 text-sm">{time}</p>
           </div>
-          <div>
-            <p className="text-gray-400 text-xs">Durée</p>
-            <p className="font-semibold text-bolt-dark mt-0.5">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-gray-500 text-xs font-medium">Durée</p>
+            <p className="font-bold text-bolt-dark mt-1 text-sm">{hours} {hours > 1 ? 'h' : 'h'}</p>
           </div>
-          <div>
-            <p className="text-gray-400 text-xs">Adresse</p>
-            <p className="font-semibold text-bolt-dark mt-0.5 truncate">{address}</p>
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-gray-500 text-xs font-medium">Adresse</p>
+            <p className="font-bold text-bolt-dark mt-1 text-sm truncate">{address}</p>
           </div>
         </div>
       </div>
 
       {/* Price */}
-      <div className="bg-[#F5F6F7] rounded-2xl p-5 space-y-2.5">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Prix</p>
-        <div className="flex justify-between text-sm text-gray-500">
-          <span>${car.price} × {hours} {hours > 1 ? 'heures' : 'heure'}</span>
-          <span className="font-medium text-bolt-dark">${subtotal.toLocaleString()}</span>
+      <div className="bg-white border-2 border-gray-100 rounded-xl p-5 space-y-3">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Détail du prix</p>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">${car.price} × {hours} {hours > 1 ? 'heure' : 'heure'}</span>
+          <span className="font-semibold text-bolt-dark">${subtotal.toLocaleString()}</span>
         </div>
-        <div className="flex justify-between text-sm text-gray-500">
-          <span>Taxe (5%)</span>
-          <span className="font-medium text-bolt-dark">${tax.toFixed(2)}</span>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Taxe (5%)</span>
+          <span className="font-semibold text-bolt-dark">${tax.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between font-bold text-bolt-dark pt-3 border-t border-gray-200 text-base">
-          <span>Total</span>
-          <span className="text-bolt-green text-xl">${total.toFixed(2)}</span>
+        <div className="flex justify-between items-center pt-4 border-t-2 border-gray-100 mt-4">
+          <span className="font-bold text-bolt-dark text-base">Total</span>
+          <span className="text-bolt-green font-bold text-2xl">${total.toFixed(2)}</span>
         </div>
       </div>
 
       <button
         onClick={onConfirm}
-        className="w-full bg-bolt-green text-white py-4 rounded-full font-bold text-base hover:bg-[#29a366] active:scale-[0.98] transition-all shadow-lg shadow-bolt-green/25 flex items-center justify-center gap-2"
+        className="w-full bg-bolt-green text-white py-4 rounded-xl font-bold text-base hover:bg-[#29a366] active:scale-[0.98] transition-all shadow-lg shadow-bolt-green/30 flex items-center justify-center gap-2"
       >
         Confirmer la réservation <ChevronRight size={18} />
       </button>
-      <p className="text-xs text-center text-gray-400">Annulation gratuite jusqu'à 24h avant le départ</p>
+      <p className="text-xs text-center text-gray-500 font-medium">✓ Annulation gratuite jusqu'à 24h avant le départ</p>
     </div>
   );
 };
@@ -378,16 +404,16 @@ const Dashboard = ({ user, onClose }) => {
       <div className={`relative w-full sm:max-w-2xl sm:max-h-[92vh] h-full sm:h-auto bg-white sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden ${isClosing ? 'dashboard-closing' : 'dashboard-open'}`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-gray-100 shrink-0">
-          <div className="flex flex-col gap-1">
-            <p className="text-xs font-bold text-bolt-green uppercase tracking-wider">Bolt Drive</p>
-            <h1 className="text-lg font-bold text-bolt-dark leading-tight">Conduire maintenant</h1>
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-xs font-bold text-bolt-green uppercase tracking-widest">🚗 Bolt Drive</p>
+            <h1 className="text-xl font-bold text-bolt-dark">Réserver un véhicule</h1>
           </div>
           <button
             onClick={handleClose}
-            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-bolt-dark transition"
+            className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 hover:text-bolt-dark transition-colors duration-200"
           >
-            <X size={17} />
+            <X size={18} />
           </button>
         </div>
 
@@ -406,11 +432,11 @@ const Dashboard = ({ user, onClose }) => {
 
         {/* Footer nav */}
         {!confirmed && (
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 shrink-0 bg-white">
+          <div className="px-6 py-5 border-t border-gray-100 flex items-center gap-3 shrink-0 bg-white">
             {step > 0 && (
               <button
                 onClick={back}
-                className="flex items-center gap-1.5 px-5 py-3 rounded-full border-2 border-gray-100 text-gray-500 font-bold text-sm hover:border-gray-300 hover:text-bolt-dark transition"
+                className="flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-gray-200 text-gray-700 font-bold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
               >
                 <ChevronLeft size={16} /> Retour
               </button>
@@ -419,9 +445,9 @@ const Dashboard = ({ user, onClose }) => {
               <button
                 onClick={next}
                 disabled={!canNext()}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-bold text-sm transition-all ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg font-bold text-sm transition-all duration-200 ${
                   canNext()
-                    ? 'bg-bolt-green text-white hover:bg-[#29a366] shadow-lg shadow-bolt-green/25 active:scale-[0.98]'
+                    ? 'bg-bolt-green text-white hover:bg-[#29a366] shadow-lg shadow-bolt-green/30 active:scale-[0.98]'
                     : 'bg-gray-100 text-gray-300 cursor-not-allowed'
                 }`}
               >
