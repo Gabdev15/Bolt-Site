@@ -384,6 +384,7 @@ const BookingFlow = ({ user, onClose }) => {
   const [hours, setHours] = useState(1);
   const [address, setAddress] = useState('');
   const [confirmed, setConfirmed] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const canNext = () => {
     if (step === 0) return !!selectedCar;
@@ -395,8 +396,15 @@ const BookingFlow = ({ user, onClose }) => {
   const next = () => { if (canNext()) setStep(s => Math.min(3, s + 1)); };
   const back = () => setStep(s => Math.max(0, s - 1));
 
+  const handleOpenChange = (newOpen) => {
+    setIsOpen(newOpen);
+    if (!newOpen && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={true}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-200 shrink-0">
           <div>
