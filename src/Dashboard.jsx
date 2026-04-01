@@ -1,361 +1,435 @@
 import React, { useState } from 'react';
-import { X, Car, MapPin, Calendar, Clock, ChevronRight, LogOut, User, List, Star, Zap, Shield, CheckCircle, TrendingUp } from 'lucide-react';
-import { signOut } from 'firebase/auth';
-import { auth } from './firebase';
+import { X, Car, MapPin, Calendar, Clock, ChevronRight, ChevronLeft, Star, Zap, Shield, CheckCircle, Users, Gauge } from 'lucide-react';
 
-const BOLT_LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjkiIGhlaWdodD0iNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik01NS4yNjIgMHYzMC4wNzRoLTcuMTM2VjEuNTA0TDU1LjI2MiAwek0zNC45NDUgMzIuOTI0YzEuOTcgMCAzLjU2OCAxLjU4NCAzLjU2OCAzLjUzOCAwIDEuOTU0LTEuNTk4IDMuNTM4LTMuNTY4IDMuNTM4cy0zLjU2OC0xLjU4NC0zLjU2OC0zLjUzOGMwLTEuOTU0IDEuNTk3LTMuNTM4IDMuNTY4LTMuNTM4em0wLTI0LjM4M2M2LjA3NSAwIDExLjAxIDQuODg0IDExLjAxIDEwLjkxOCAwIDYuMDM1LTQuOTM1IDEwLjkyLTExLjAxIDEwLjkyLTYuMDg1IDAtMTEuMDEtNC44ODUtMTEuMDEtMTAuOTIgMC02LjAzNCA0LjkzNS0xMC45MTggMTEuMDEtMTAuOTE4em0wIDE0LjQ1NmMxLjk3MiAwIDMuNTY4LTEuNTgyIDMuNTY4LTMuNTM4IDAtMS45NTUtMS41OTYtMy41MzgtMy41NjgtMy41MzhzLTMuNTY4IDEuNTgzLTMuNTY4IDMuNTM4YzAgMS45NTYgMS41OTYgMy41MzggMy41NjggMy41Mzh6bS0yMi40NDggMGMxLjIzIDAgMi4yMy0uOTkyIDIuMjMtMi4yMWEyLjIyNCAyLjIyNCAwIDAwLTIuMjMtMi4yMTJINy4xNDZ2NC40MjJoNS4zNTF6TTcuMTQ2IDcuMDc3djQuNDIyaDMuOTY0YzEuMjI5IDAgMi4yMy0uOTkzIDIuMjMtMi4yMTJhMi4yMjQgMi4yMjQgMCAwMC0yLjIzLTIuMjFINy4xNDZ6bTExLjkyMiA3LjA5NWMxLjcyNCAxLjY5IDIuNzk1IDQuMDMgMi43ODUgNi42MTQgMCA1LjEzLTQuMTkyIDkuMjg4LTkuMzY2IDkuMjg4SDBWMGgxMS4xYzUuMTczIDAgOS4zNjUgNC4xNTcgOS4zNjUgOS4yODcgMCAxLjc5LS41MDUgMy40Ny0xLjM5NyA0Ljg4NXpNNjguNzQgMTYuMDJoLTMuNTU4djUuNTUzYzAgMS42OC41NDUgMi45MTggMS45NzIgMi45MTguOTIyIDAgMS41OTYtLjIwNiAxLjU5Ni0uMjA2djUuMjA5cy0xLjQ3Ny44ODQtMy40NzkuODg0aC0uMDg5Yy0uMDkgMC0uMTY4LS4wMS0uMjU4LS4wMWgtLjA2OWMtLjA0IDAtLjA5LS4wMS0uMTI5LS4wMS0zLjk4NC0uMjA2LTYuNjktMi42OTItNi42OS03LjAwN1Y1LjA0MWw3LjEzNi0xLjUwM3Y1LjQwNWgzLjU2OHY3LjA3N3oiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=";
+const CARS = [
+  {
+    id: 'prius',
+    name: 'Toyota Prius',
+    year: '2023',
+    type: 'Hybride',
+    seats: 5,
+    transmission: 'Automatique',
+    rating: 4.9,
+    reviews: 128,
+    price: 700,
+    available: true,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg/1280px-2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg',
+    features: [['⚡', 'Hybride'], ['🛡️', 'Assuré'], ['⛽', 'Inclus']],
+  },
+  {
+    id: 'model3',
+    name: 'Tesla Model 3',
+    year: '2024',
+    type: 'Électrique',
+    seats: 5,
+    transmission: 'Automatique',
+    rating: 5.0,
+    reviews: 64,
+    price: 950,
+    available: false,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg/1280px-2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg',
+    features: [['⚡', 'Électrique'], ['🛡️', 'Assuré'], ['📱', 'Connecté']],
+  },
+];
 
-const RATE = 700;
-const TAX_RATE = 0.05;
+const STEPS = ['Véhicule', 'Date & Heure', 'Adresse', 'Confirmation'];
 
-const NavItem = ({ icon, label, id, active, onClick }) => (
-  <button
-    onClick={() => onClick(id)}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
-      active === id
-        ? 'bg-bolt-green text-white shadow-lg shadow-bolt-green/20'
-        : 'text-white/50 hover:text-white hover:bg-white/5'
-    }`}
-  >
-    <span className={active === id ? 'text-white' : 'text-white/40'}>{icon}</span>
-    {label}
-    {active === id && <ChevronRight size={14} className="ml-auto opacity-60" />}
-  </button>
+const StepIndicator = ({ current }) => (
+  <div className="flex items-center gap-0">
+    {STEPS.map((label, i) => {
+      const done = i < current;
+      const active = i === current;
+      return (
+        <React.Fragment key={i}>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+              done ? 'bg-bolt-green text-white shadow-md shadow-bolt-green/30'
+              : active ? 'bg-bolt-green text-white shadow-md shadow-bolt-green/30'
+              : 'bg-gray-100 text-gray-400'
+            }`}>
+              {done ? <CheckCircle size={14} /> : i + 1}
+            </div>
+            <span className={`text-[10px] font-semibold hidden sm:block ${active ? 'text-bolt-green' : done ? 'text-bolt-green/60' : 'text-gray-400'}`}>
+              {label}
+            </span>
+          </div>
+          {i < STEPS.length - 1 && (
+            <div className={`h-0.5 w-10 sm:w-16 mx-1 mb-4 transition-all duration-500 ${done ? 'bg-bolt-green' : 'bg-gray-100'}`} />
+          )}
+        </React.Fragment>
+      );
+    })}
+  </div>
 );
 
-const StatCard = ({ icon, label, value, sub }) => (
-  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 hover:bg-white/8 transition-colors">
-    <div className="flex items-center justify-between">
-      <div className="w-9 h-9 rounded-xl bg-bolt-green/15 flex items-center justify-center text-bolt-green">
-        {icon}
-      </div>
-      <span className="text-white/20 text-xs font-medium">{sub}</span>
-    </div>
+/* ── Step 1 — Choisir un véhicule ── */
+const StepVehicle = ({ selected, onSelect }) => (
+  <div className="space-y-5">
     <div>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      <p className="text-sm text-white/40 mt-0.5">{label}</p>
+      <h2 className="text-2xl font-bold text-bolt-dark">Choisissez votre véhicule</h2>
+      <p className="text-gray-400 text-sm mt-1">Sélectionnez la voiture qui vous convient</p>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {CARS.map(car => (
+        <button
+          key={car.id}
+          onClick={() => car.available && onSelect(car)}
+          disabled={!car.available}
+          className={`text-left rounded-2xl border-2 overflow-hidden transition-all duration-200 ${
+            !car.available ? 'opacity-60 cursor-not-allowed border-transparent'
+            : selected?.id === car.id
+              ? 'border-bolt-green shadow-lg shadow-bolt-green/15 scale-[1.01]'
+              : 'border-gray-100 hover:border-bolt-green/40 hover:shadow-md'
+          }`}
+        >
+          {/* Image */}
+          <div className="relative">
+            <img src={car.image} alt={car.name} className="w-full h-44 object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            {!car.available ? (
+              <span className="absolute top-3 left-3 bg-gray-800/80 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                Bientôt disponible
+              </span>
+            ) : (
+              <span className="absolute top-3 left-3 bg-bolt-green text-white text-xs font-bold px-3 py-1.5 rounded-full shadow">
+                Disponible
+              </span>
+            )}
+            {selected?.id === car.id && (
+              <div className="absolute top-3 right-3 w-7 h-7 bg-bolt-green rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle size={14} className="text-white" />
+              </div>
+            )}
+            <div className="absolute bottom-3 left-3 flex items-center gap-1 text-yellow-400 text-sm font-semibold">
+              <Star size={12} fill="currentColor" />
+              <span>{car.rating}</span>
+              <span className="text-white/60 text-xs font-normal">· {car.reviews} avis</span>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="p-4 bg-white">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <h3 className="font-bold text-bolt-dark text-lg leading-tight">{car.name}</h3>
+                <p className="text-gray-400 text-xs mt-0.5">{car.type} · {car.seats} places · {car.transmission}</p>
+              </div>
+              <div className="text-right shrink-0 ml-3">
+                <p className="text-xl font-bold text-bolt-green">${car.price}</p>
+                <p className="text-gray-400 text-xs">/heure</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              {car.features.map(([icon, label]) => (
+                <span key={label} className="flex items-center gap-1 bg-gray-50 border border-gray-100 text-xs text-gray-500 font-medium px-2.5 py-1 rounded-full">
+                  {icon} {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        </button>
+      ))}
     </div>
   </div>
 );
 
-const ReservationsSection = () => (
-  <section className="flex-1">
-    <h2 className="text-xl font-bold text-white mb-6">Mes réservations</h2>
-    <div className="bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-5">
-        <List size={26} className="text-white/20" />
-      </div>
-      <p className="text-lg font-bold text-white">Aucune réservation</p>
-      <p className="text-sm text-white/40 mt-2 max-w-xs leading-relaxed">
-        Vos prochaines locations apparaîtront ici dès que vous aurez effectué une réservation.
-      </p>
+/* ── Step 2 — Date & Heure ── */
+const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) => (
+  <div className="space-y-6 max-w-lg">
+    <div>
+      <h2 className="text-2xl font-bold text-bolt-dark">Date & Heure</h2>
+      <p className="text-gray-400 text-sm mt-1">Quand souhaitez-vous conduire ?</p>
     </div>
-  </section>
-);
 
-const ProfilSection = ({ user }) => (
-  <section>
-    <h2 className="text-xl font-bold text-white mb-6">Mon profil</h2>
-    <div className="max-w-md space-y-4">
-      {/* Avatar card */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-5">
-        <div className="w-16 h-16 rounded-full bg-bolt-green flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-bolt-green/30 shrink-0">
-          {user.displayName?.[0]?.toUpperCase() || '?'}
-        </div>
-        <div>
-          <p className="font-bold text-white text-xl leading-tight">{user.displayName}</p>
-          <p className="text-white/40 text-sm mt-0.5">{user.email}</p>
-          <span className="inline-flex items-center gap-1.5 mt-2 bg-bolt-green/15 text-bolt-green text-xs font-semibold px-2.5 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-bolt-green"></span>
-            Membre actif
-          </span>
-        </div>
-      </div>
-
-      {/* Info card */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-bolt-green/15 flex items-center justify-center shrink-0 mt-0.5">
-          <Shield size={15} className="text-bolt-green" />
-        </div>
-        <div>
-          <p className="text-white text-sm font-semibold">Modification du profil</p>
-          <p className="text-white/40 text-xs mt-0.5 leading-relaxed">
-            La personnalisation du profil sera disponible prochainement.
-          </p>
-        </div>
+    {/* Selected car reminder */}
+    <div className="flex items-center gap-3 bg-bolt-green/5 border border-bolt-green/20 rounded-2xl p-4">
+      <img src={car.image} alt={car.name} className="w-14 h-10 object-cover rounded-xl" />
+      <div>
+        <p className="font-bold text-bolt-dark text-sm">{car.name} {car.year}</p>
+        <p className="text-gray-400 text-xs">${car.price}/heure</p>
       </div>
     </div>
-  </section>
+
+    {/* Date */}
+    <div>
+      <label className="text-sm font-bold text-bolt-dark mb-2 block">Date de départ</label>
+      <div className="border-2 border-gray-100 rounded-2xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
+        <Calendar size={18} className="text-gray-300 shrink-0" />
+        <input
+          type="date"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+          min={new Date().toISOString().split('T')[0]}
+          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium"
+        />
+      </div>
+    </div>
+
+    {/* Time */}
+    <div>
+      <label className="text-sm font-bold text-bolt-dark mb-2 block">Heure de départ</label>
+      <div className="border-2 border-gray-100 rounded-2xl h-14 flex items-center px-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
+        <Clock size={18} className="text-gray-300 shrink-0" />
+        <input
+          type="time"
+          value={time}
+          onChange={e => setTime(e.target.value)}
+          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark font-medium"
+        />
+      </div>
+    </div>
+
+    {/* Duration */}
+    <div>
+      <label className="text-sm font-bold text-bolt-dark mb-2 block">Durée de conduite</label>
+      <div className="border-2 border-gray-100 rounded-2xl h-16 flex items-center px-3 bg-white">
+        <button
+          type="button"
+          onClick={() => setHours(h => Math.max(1, h - 1))}
+          className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl"
+        >
+          −
+        </button>
+        <div className="flex-1 text-center">
+          <span className="text-3xl font-bold text-bolt-dark">{hours}</span>
+          <span className="text-gray-400 text-sm ml-2">{hours > 1 ? 'heures' : 'heure'}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setHours(h => Math.min(24, h + 1))}
+          className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  </div>
 );
 
+/* ── Step 3 — Adresse ── */
+const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
+  <div className="space-y-6 max-w-lg">
+    <div>
+      <h2 className="text-2xl font-bold text-bolt-dark">Adresse de prise en charge</h2>
+      <p className="text-gray-400 text-sm mt-1">Où voulez-vous récupérer le véhicule ?</p>
+    </div>
+
+    <div className="border-2 border-gray-100 rounded-2xl flex items-start p-4 gap-3 focus-within:border-bolt-green transition-colors bg-white">
+      <MapPin size={18} className="text-bolt-green mt-0.5 shrink-0" />
+      <textarea
+        value={address}
+        onChange={e => setAddress(e.target.value)}
+        placeholder="Ex: 12 Rue de la Paix, 75001 Paris"
+        rows={2}
+        className="flex-1 outline-none text-sm bg-transparent text-bolt-dark placeholder-gray-300 font-medium resize-none"
+      />
+    </div>
+
+    {/* Summary preview */}
+    <div className="bg-[#F5F6F7] rounded-2xl p-5 space-y-3">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Récapitulatif</p>
+      <div className="flex items-center gap-3">
+        <img src={car.image} alt={car.name} className="w-16 h-11 object-cover rounded-xl" />
+        <div>
+          <p className="font-bold text-bolt-dark text-sm">{car.name} {car.year}</p>
+          <p className="text-gray-400 text-xs">{car.type} · {car.seats} places</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="bg-white rounded-xl p-2.5">
+          <p className="text-gray-400">Date</p>
+          <p className="font-semibold text-bolt-dark mt-0.5">{date || '—'}</p>
+        </div>
+        <div className="bg-white rounded-xl p-2.5">
+          <p className="text-gray-400">Heure</p>
+          <p className="font-semibold text-bolt-dark mt-0.5">{time || '—'}</p>
+        </div>
+        <div className="bg-white rounded-xl p-2.5 col-span-2">
+          <p className="text-gray-400">Durée</p>
+          <p className="font-semibold text-bolt-dark mt-0.5">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ── Step 4 — Confirmation ── */
+const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirmed }) => {
+  const subtotal = car.price * hours;
+  const tax = subtotal * 0.05;
+  const total = subtotal + tax;
+
+  if (confirmed) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
+        <div className="w-20 h-20 rounded-full bg-bolt-green/10 flex items-center justify-center mb-6">
+          <CheckCircle size={40} className="text-bolt-green" />
+        </div>
+        <h2 className="text-2xl font-bold text-bolt-dark">Pré-commande envoyée !</h2>
+        <p className="text-gray-400 text-sm mt-3 leading-relaxed">
+          Votre demande a été transmise. Vous recevrez une confirmation par email sous peu.
+        </p>
+        <div className="bg-bolt-green/8 border border-bolt-green/20 rounded-2xl p-4 mt-6 w-full text-left">
+          <p className="text-xs font-bold text-bolt-green uppercase tracking-wider mb-2">Détails</p>
+          <p className="text-sm font-semibold text-bolt-dark">{car.name} · {hours}h · ${total.toFixed(2)}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{date} à {time} — {address}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5 max-w-lg">
+      <div>
+        <h2 className="text-2xl font-bold text-bolt-dark">Confirmez votre réservation</h2>
+        <p className="text-gray-400 text-sm mt-1">Vérifiez les détails avant de confirmer</p>
+      </div>
+
+      {/* Car */}
+      <div className="border-2 border-gray-100 rounded-2xl overflow-hidden">
+        <div className="relative">
+          <img src={car.image} alt={car.name} className="w-full h-36 object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="absolute bottom-3 left-4">
+            <p className="text-white font-bold text-lg leading-tight">{car.name} {car.year}</p>
+            <p className="text-white/60 text-xs">{car.type} · {car.seats} places</p>
+          </div>
+        </div>
+        <div className="p-4 bg-white grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-gray-400 text-xs">Date</p>
+            <p className="font-semibold text-bolt-dark mt-0.5">{date}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Heure</p>
+            <p className="font-semibold text-bolt-dark mt-0.5">{time}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Durée</p>
+            <p className="font-semibold text-bolt-dark mt-0.5">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Adresse</p>
+            <p className="font-semibold text-bolt-dark mt-0.5 truncate">{address}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Price */}
+      <div className="bg-[#F5F6F7] rounded-2xl p-5 space-y-2.5">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Prix</p>
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>${car.price} × {hours} {hours > 1 ? 'heures' : 'heure'}</span>
+          <span className="font-medium text-bolt-dark">${subtotal.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>Taxe (5%)</span>
+          <span className="font-medium text-bolt-dark">${tax.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between font-bold text-bolt-dark pt-3 border-t border-gray-200 text-base">
+          <span>Total</span>
+          <span className="text-bolt-green text-xl">${total.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <button
+        onClick={onConfirm}
+        className="w-full bg-bolt-green text-white py-4 rounded-full font-bold text-base hover:bg-[#29a366] active:scale-[0.98] transition-all shadow-lg shadow-bolt-green/25 flex items-center justify-center gap-2"
+      >
+        Confirmer la réservation <ChevronRight size={18} />
+      </button>
+      <p className="text-xs text-center text-gray-400">Annulation gratuite jusqu'à 24h avant le départ</p>
+    </div>
+  );
+};
+
+/* ── Main Component ── */
 const Dashboard = ({ user, onClose }) => {
-  const [activeNav, setActiveNav] = useState('reserver');
+  const [step, setStep] = useState(0);
+  const [selectedCar, setSelectedCar] = useState(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [hours, setHours] = useState(1);
   const [address, setAddress] = useState('');
   const [isClosing, setIsClosing] = useState(false);
-  const [ordered, setOrdered] = useState(false);
-
-  const subtotal = RATE * hours;
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax;
-
-  const initial = user.displayName?.[0]?.toUpperCase() || '?';
-  const firstName = user.displayName?.split(' ')[0] || 'là';
+  const [confirmed, setConfirmed] = useState(false);
 
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(() => onClose(), 250);
   };
 
+  const canNext = () => {
+    if (step === 0) return !!selectedCar;
+    if (step === 1) return !!date && !!time;
+    if (step === 2) return address.trim().length > 3;
+    return true;
+  };
+
+  const next = () => { if (canNext()) setStep(s => Math.min(3, s + 1)); };
+  const back = () => setStep(s => Math.max(0, s - 1));
+
   return (
-    <div className="fixed inset-0 z-[90] flex">
+    <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
 
-      {/* Panel */}
-      <div className={`relative ml-auto w-full max-w-[1200px] h-full bg-[#0E1010] flex shadow-2xl overflow-hidden ${isClosing ? 'dashboard-closing' : 'dashboard-open'}`}>
+      {/* Panel — full screen on mobile, centered card on desktop */}
+      <div className={`relative w-full sm:max-w-2xl sm:max-h-[92vh] h-full sm:h-auto bg-white sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden ${isClosing ? 'dashboard-closing' : 'dashboard-open'}`}>
 
-        {/* ── Sidebar ── */}
-        <aside className="w-64 shrink-0 bg-[#080a0a] border-r border-white/[0.06] flex flex-col h-full hidden lg:flex">
-          {/* Logo */}
-          <div className="px-6 py-7 border-b border-white/[0.06]">
-            <img src={BOLT_LOGO} alt="Bolt" className="h-7" />
-            <p className="text-white/25 text-xs font-medium mt-2">Drive Dashboard</p>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-gray-100 shrink-0">
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-bold text-bolt-green uppercase tracking-wider">Bolt Drive</p>
+            <h1 className="text-lg font-bold text-bolt-dark leading-tight">Conduire maintenant</h1>
           </div>
+          <button
+            onClick={handleClose}
+            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-bolt-dark transition"
+          >
+            <X size={17} />
+          </button>
+        </div>
 
-          {/* Nav */}
-          <nav className="flex-1 px-3 py-5 space-y-1">
-            <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest px-4 mb-3">Menu</p>
-            <NavItem icon={<Car size={17} />}  label="Réserver"          id="reserver"     active={activeNav} onClick={setActiveNav} />
-            <NavItem icon={<List size={17} />} label="Mes réservations"  id="reservations" active={activeNav} onClick={setActiveNav} />
-            <NavItem icon={<User size={17} />} label="Profil"            id="profil"       active={activeNav} onClick={setActiveNav} />
-          </nav>
+        {/* Step indicator */}
+        <div className="px-6 py-4 border-b border-gray-100 flex justify-center shrink-0">
+          <StepIndicator current={step} />
+        </div>
 
-          {/* User + Logout */}
-          <div className="px-3 py-5 border-t border-white/[0.06]">
-            <div className="flex items-center gap-3 px-3 mb-3">
-              <div className="w-9 h-9 rounded-full bg-bolt-green flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md shadow-bolt-green/20">
-                {initial}
-              </div>
-              <div className="overflow-hidden flex-1 min-w-0">
-                <p className="text-white text-sm font-semibold truncate leading-tight">{user.displayName}</p>
-                <p className="text-white/30 text-xs truncate mt-0.5">{user.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => { signOut(auth); onClose(); }}
-              className="w-full flex items-center gap-2.5 text-white/40 hover:text-white/80 text-sm font-medium transition-colors px-3 py-2.5 rounded-xl hover:bg-white/5"
-            >
-              <LogOut size={15} /> Déconnexion
-            </button>
-          </div>
-        </aside>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          {step === 0 && <StepVehicle selected={selectedCar} onSelect={setSelectedCar} />}
+          {step === 1 && selectedCar && <StepDateTime car={selectedCar} date={date} setDate={setDate} time={time} setTime={setTime} hours={hours} setHours={setHours} />}
+          {step === 2 && selectedCar && <StepAddress car={selectedCar} date={date} time={time} hours={hours} address={address} setAddress={setAddress} />}
+          {step === 3 && selectedCar && <StepConfirmation car={selectedCar} date={date} time={time} hours={hours} address={address} onConfirm={() => setConfirmed(true)} confirmed={confirmed} />}
+        </div>
 
-        {/* ── Main ── */}
-        <main className="flex-1 overflow-y-auto">
-
-          {/* Header */}
-          <div className="sticky top-0 z-10 bg-[#0E1010]/80 backdrop-blur-md border-b border-white/[0.06] px-8 py-5 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Bonjour, {firstName} 👋</h1>
-              <p className="text-sm text-white/35 mt-0.5">Bienvenue sur votre espace Bolt Drive</p>
-            </div>
-            <button
-              onClick={handleClose}
-              className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition"
-            >
-              <X size={17} />
-            </button>
-          </div>
-
-          <div className="px-8 py-8 space-y-8">
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard icon={<Car size={18} />}        label="Courses effectuées"  value="0"     sub="Total" />
-              <StatCard icon={<MapPin size={18} />}      label="Km parcourus"         value="0 km"  sub="Trajet" />
-              <StatCard icon={<TrendingUp size={18} />}  label="Économies réalisées"  value="$0"    sub="Ce mois" />
-            </div>
-
-            {/* Mobile tabs */}
-            <div className="flex lg:hidden gap-2">
-              {[['reserver','Réserver'],['reservations','Réservations'],['profil','Profil']].map(([id, label]) => (
-                <button key={id} onClick={() => setActiveNav(id)}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
-                    activeNav === id
-                      ? 'bg-bolt-green text-white shadow-lg shadow-bolt-green/20'
-                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
-                  }`}>
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* ── Réserver ── */}
-            {activeNav === 'reserver' && (
-              <section>
-                <h2 className="text-xl font-bold text-white mb-6">Réserver un véhicule</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-
-                  {/* Car card */}
-                  <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-colors">
-                    <div className="relative">
-                      <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg/1280px-2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg"
-                        alt="Toyota Prius"
-                        className="w-full h-52 object-cover opacity-90"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0E1010]/80 via-transparent to-transparent" />
-                      <span className="absolute top-4 left-4 bg-bolt-green text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                        Disponible
-                      </span>
-                      <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-yellow-400 text-sm font-semibold">
-                        <Star size={13} fill="currentColor" />
-                        <span>4.9</span>
-                        <span className="text-white/40 text-xs font-normal ml-1">· 128 avis</span>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-white">Toyota Prius 2023</h3>
-                        <p className="text-white/40 text-sm mt-0.5">Hybride · 5 places · Automatique</p>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 mb-5">
-                        {[['⚡','Hybride'],['🛡️','Assuré'],['⛽','Inclus']].map(([icon, label]) => (
-                          <div key={label} className="bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-center">
-                            <p className="text-base">{icon}</p>
-                            <p className="text-xs text-white/50 font-medium mt-0.5">{label}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex items-end justify-between pt-4 border-t border-white/10">
-                        <div>
-                          <span className="text-3xl font-bold text-white">$700</span>
-                          <span className="text-white/40 text-sm ml-1.5">/heure</span>
-                        </div>
-                        <span className="text-xs text-white/30 bg-white/5 px-2.5 py-1 rounded-full">Taxe 5% incluse</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Booking form */}
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-5">
-                    <h3 className="font-bold text-white text-lg">Détails de la réservation</h3>
-
-                    {ordered && (
-                      <div className="bg-bolt-green/10 border border-bolt-green/25 text-bolt-green rounded-2xl px-4 py-3.5 text-sm font-semibold flex items-center gap-2.5">
-                        <CheckCircle size={16} className="shrink-0" />
-                        Pré-commande envoyée avec succès !
-                      </div>
-                    )}
-
-                    {/* Date */}
-                    <div>
-                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Date</label>
-                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
-                        <Calendar size={15} className="text-white/30 shrink-0" />
-                        <input
-                          type="date"
-                          value={date}
-                          onChange={e => setDate(e.target.value)}
-                          className="flex-1 outline-none text-sm bg-transparent text-white [color-scheme:dark]"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Time */}
-                    <div>
-                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Heure de départ</label>
-                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
-                        <Clock size={15} className="text-white/30 shrink-0" />
-                        <input
-                          type="time"
-                          value={time}
-                          onChange={e => setTime(e.target.value)}
-                          className="flex-1 outline-none text-sm bg-transparent text-white [color-scheme:dark]"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Hours stepper */}
-                    <div>
-                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Durée de conduite</label>
-                      <div className="bg-white/5 border border-white/10 rounded-xl h-14 flex items-center px-2">
-                        <button
-                          type="button"
-                          onClick={() => setHours(h => Math.max(1, h - 1))}
-                          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition font-bold text-lg"
-                        >
-                          −
-                        </button>
-                        <div className="flex-1 text-center">
-                          <span className="text-2xl font-bold text-white">{hours}</span>
-                          <span className="text-white/40 text-sm ml-2">{hours > 1 ? 'heures' : 'heure'}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setHours(h => Math.min(24, h + 1))}
-                          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition font-bold text-lg"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Address */}
-                    <div>
-                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Adresse de prise en charge</label>
-                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
-                        <MapPin size={15} className="text-white/30 shrink-0" />
-                        <input
-                          type="text"
-                          value={address}
-                          onChange={e => setAddress(e.target.value)}
-                          placeholder="Ex: 12 Rue de la Paix, Paris"
-                          className="flex-1 outline-none text-sm bg-transparent text-white placeholder-white/20"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Price breakdown */}
-                    <div className="bg-black/30 border border-white/[0.07] rounded-xl p-4 space-y-2.5">
-                      <div className="flex justify-between text-sm text-white/40">
-                        <span>$700 × {hours} {hours > 1 ? 'heures' : 'heure'}</span>
-                        <span className="font-medium text-white/70">${subtotal.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-white/40">
-                        <span>Taxe (5%)</span>
-                        <span className="font-medium text-white/70">${tax.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold pt-2.5 border-t border-white/10">
-                        <span className="text-white">Total</span>
-                        <span className="text-bolt-green text-lg">${total.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    {/* CTA */}
-                    <button
-                      onClick={() => setOrdered(true)}
-                      className="w-full bg-bolt-green text-white py-4 rounded-full font-bold text-sm hover:bg-[#29a366] active:scale-[0.98] transition-all shadow-lg shadow-bolt-green/25 flex items-center justify-center gap-2"
-                    >
-                      Pré-commander <ChevronRight size={16} />
-                    </button>
-                    <p className="text-xs text-center text-white/25">Annulation gratuite jusqu'à 24h avant le départ</p>
-                  </div>
-
-                </div>
-              </section>
+        {/* Footer nav */}
+        {!confirmed && (
+          <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 shrink-0 bg-white">
+            {step > 0 && (
+              <button
+                onClick={back}
+                className="flex items-center gap-1.5 px-5 py-3 rounded-full border-2 border-gray-100 text-gray-500 font-bold text-sm hover:border-gray-300 hover:text-bolt-dark transition"
+              >
+                <ChevronLeft size={16} /> Retour
+              </button>
             )}
-
-            {activeNav === 'reservations' && <ReservationsSection />}
-            {activeNav === 'profil' && <ProfilSection user={user} />}
+            {step < 3 && (
+              <button
+                onClick={next}
+                disabled={!canNext()}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-bold text-sm transition-all ${
+                  canNext()
+                    ? 'bg-bolt-green text-white hover:bg-[#29a366] shadow-lg shadow-bolt-green/25 active:scale-[0.98]'
+                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                }`}
+              >
+                Continuer <ChevronRight size={16} />
+              </button>
+            )}
           </div>
-        </main>
+        )}
       </div>
     </div>
   );
