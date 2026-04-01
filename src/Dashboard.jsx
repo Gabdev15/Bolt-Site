@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Car, MapPin, Calendar, Clock, ChevronRight, LogOut, User, List, Star, Zap, Shield } from 'lucide-react';
+import { X, Car, MapPin, Calendar, Clock, ChevronRight, LogOut, User, List, Star, Zap, Shield, CheckCircle, TrendingUp } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
 
@@ -11,38 +11,42 @@ const TAX_RATE = 0.05;
 const NavItem = ({ icon, label, id, active, onClick }) => (
   <button
     onClick={() => onClick(id)}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
       active === id
-        ? 'bg-bolt-green text-white shadow-sm'
-        : 'text-white/60 hover:text-white hover:bg-white/10'
+        ? 'bg-bolt-green text-white shadow-lg shadow-bolt-green/20'
+        : 'text-white/50 hover:text-white hover:bg-white/5'
     }`}
   >
-    {icon}
+    <span className={active === id ? 'text-white' : 'text-white/40'}>{icon}</span>
     {label}
+    {active === id && <ChevronRight size={14} className="ml-auto opacity-60" />}
   </button>
 );
 
-const StatCard = ({ icon, label, value, color = 'text-bolt-green' }) => (
-  <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
-    <div className={`w-10 h-10 rounded-xl bg-bolt-green/10 flex items-center justify-center ${color} shrink-0`}>
-      {icon}
+const StatCard = ({ icon, label, value, sub }) => (
+  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 hover:bg-white/8 transition-colors">
+    <div className="flex items-center justify-between">
+      <div className="w-9 h-9 rounded-xl bg-bolt-green/15 flex items-center justify-center text-bolt-green">
+        {icon}
+      </div>
+      <span className="text-white/20 text-xs font-medium">{sub}</span>
     </div>
     <div>
-      <p className="text-2xl font-bold text-bolt-dark">{value}</p>
-      <p className="text-sm text-gray-400 mt-0.5">{label}</p>
+      <p className="text-2xl font-bold text-white">{value}</p>
+      <p className="text-sm text-white/40 mt-0.5">{label}</p>
     </div>
   </div>
 );
 
 const ReservationsSection = () => (
-  <section>
-    <h2 className="text-xl font-bold text-bolt-dark mb-6">Mes réservations</h2>
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-full bg-[#F5F6F7] flex items-center justify-center mb-4">
-        <List size={28} className="text-gray-300" />
+  <section className="flex-1">
+    <h2 className="text-xl font-bold text-white mb-6">Mes réservations</h2>
+    <div className="bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+        <List size={26} className="text-white/20" />
       </div>
-      <p className="text-lg font-semibold text-bolt-dark">Aucune réservation pour l'instant</p>
-      <p className="text-sm text-gray-400 mt-2 max-w-xs leading-relaxed">
+      <p className="text-lg font-bold text-white">Aucune réservation</p>
+      <p className="text-sm text-white/40 mt-2 max-w-xs leading-relaxed">
         Vos prochaines locations apparaîtront ici dès que vous aurez effectué une réservation.
       </p>
     </div>
@@ -51,20 +55,34 @@ const ReservationsSection = () => (
 
 const ProfilSection = ({ user }) => (
   <section>
-    <h2 className="text-xl font-bold text-bolt-dark mb-6">Mon profil</h2>
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-md space-y-5">
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-bolt-green flex items-center justify-center text-white text-2xl font-bold shadow">
+    <h2 className="text-xl font-bold text-white mb-6">Mon profil</h2>
+    <div className="max-w-md space-y-4">
+      {/* Avatar card */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-bolt-green flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-bolt-green/30 shrink-0">
           {user.displayName?.[0]?.toUpperCase() || '?'}
         </div>
         <div>
-          <p className="font-bold text-bolt-dark text-xl">{user.displayName}</p>
-          <p className="text-gray-400 text-sm">{user.email}</p>
+          <p className="font-bold text-white text-xl leading-tight">{user.displayName}</p>
+          <p className="text-white/40 text-sm mt-0.5">{user.email}</p>
+          <span className="inline-flex items-center gap-1.5 mt-2 bg-bolt-green/15 text-bolt-green text-xs font-semibold px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-bolt-green"></span>
+            Membre actif
+          </span>
         </div>
       </div>
-      <div className="bg-[#F5F6F7] rounded-xl p-4 text-sm text-gray-500 flex items-center gap-2">
-        <Shield size={16} className="text-bolt-green shrink-0" />
-        La modification du profil sera disponible prochainement.
+
+      {/* Info card */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-start gap-3">
+        <div className="w-8 h-8 rounded-xl bg-bolt-green/15 flex items-center justify-center shrink-0 mt-0.5">
+          <Shield size={15} className="text-bolt-green" />
+        </div>
+        <div>
+          <p className="text-white text-sm font-semibold">Modification du profil</p>
+          <p className="text-white/40 text-xs mt-0.5 leading-relaxed">
+            La personnalisation du profil sera disponible prochainement.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -94,163 +112,196 @@ const Dashboard = ({ user, onClose }) => {
   return (
     <div className="fixed inset-0 z-[90] flex">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Panel */}
-      <div className={`relative ml-auto w-full max-w-[1200px] h-full bg-[#F5F6F7] flex shadow-2xl overflow-hidden ${isClosing ? 'dashboard-closing' : 'dashboard-open'}`}>
+      <div className={`relative ml-auto w-full max-w-[1200px] h-full bg-[#0E1010] flex shadow-2xl overflow-hidden ${isClosing ? 'dashboard-closing' : 'dashboard-open'}`}>
 
         {/* ── Sidebar ── */}
-        <aside className="w-60 shrink-0 bg-bolt-dark flex flex-col h-full hidden lg:flex">
-          <div className="px-6 py-8 border-b border-white/10">
+        <aside className="w-64 shrink-0 bg-[#080a0a] border-r border-white/[0.06] flex flex-col h-full hidden lg:flex">
+          {/* Logo */}
+          <div className="px-6 py-7 border-b border-white/[0.06]">
             <img src={BOLT_LOGO} alt="Bolt" className="h-7" />
+            <p className="text-white/25 text-xs font-medium mt-2">Drive Dashboard</p>
           </div>
 
-          <nav className="flex-1 px-3 py-6 space-y-1">
-            <NavItem icon={<Car size={18} />}  label="Réserver"          id="reserver"     active={activeNav} onClick={setActiveNav} />
-            <NavItem icon={<List size={18} />} label="Mes réservations"  id="reservations" active={activeNav} onClick={setActiveNav} />
-            <NavItem icon={<User size={18} />} label="Profil"            id="profil"       active={activeNav} onClick={setActiveNav} />
+          {/* Nav */}
+          <nav className="flex-1 px-3 py-5 space-y-1">
+            <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest px-4 mb-3">Menu</p>
+            <NavItem icon={<Car size={17} />}  label="Réserver"          id="reserver"     active={activeNav} onClick={setActiveNav} />
+            <NavItem icon={<List size={17} />} label="Mes réservations"  id="reservations" active={activeNav} onClick={setActiveNav} />
+            <NavItem icon={<User size={17} />} label="Profil"            id="profil"       active={activeNav} onClick={setActiveNav} />
           </nav>
 
-          <div className="px-3 py-6 border-t border-white/10">
-            <div className="flex items-center gap-3 px-4 mb-4">
-              <div className="w-9 h-9 rounded-full bg-bolt-green flex items-center justify-center text-white font-bold text-sm shrink-0">
+          {/* User + Logout */}
+          <div className="px-3 py-5 border-t border-white/[0.06]">
+            <div className="flex items-center gap-3 px-3 mb-3">
+              <div className="w-9 h-9 rounded-full bg-bolt-green flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md shadow-bolt-green/20">
                 {initial}
               </div>
-              <div className="overflow-hidden">
-                <p className="text-white text-sm font-semibold truncate">{user.displayName}</p>
-                <p className="text-white/40 text-xs truncate">{user.email}</p>
+              <div className="overflow-hidden flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold truncate leading-tight">{user.displayName}</p>
+                <p className="text-white/30 text-xs truncate mt-0.5">{user.email}</p>
               </div>
             </div>
             <button
               onClick={() => { signOut(auth); onClose(); }}
-              className="w-full flex items-center gap-2 text-white/50 hover:text-white text-sm font-medium transition px-4 py-2.5 rounded-xl hover:bg-white/10"
+              className="w-full flex items-center gap-2.5 text-white/40 hover:text-white/80 text-sm font-medium transition-colors px-3 py-2.5 rounded-xl hover:bg-white/5"
             >
-              <LogOut size={16} /> Déconnexion
+              <LogOut size={15} /> Déconnexion
             </button>
           </div>
         </aside>
 
         {/* ── Main ── */}
         <main className="flex-1 overflow-y-auto">
+
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-[#F5F6F7]/90 backdrop-blur-sm border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+          <div className="sticky top-0 z-10 bg-[#0E1010]/80 backdrop-blur-md border-b border-white/[0.06] px-8 py-5 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-bolt-dark">Bonjour, {firstName} 👋</h1>
-              <p className="text-sm text-gray-400 mt-0.5">Bienvenue sur votre espace Bolt Drive</p>
+              <h1 className="text-2xl font-bold text-white">Bonjour, {firstName} 👋</h1>
+              <p className="text-sm text-white/35 mt-0.5">Bienvenue sur votre espace Bolt Drive</p>
             </div>
-            <button onClick={handleClose} className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-bolt-dark transition shadow-sm">
-              <X size={18} />
+            <button
+              onClick={handleClose}
+              className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition"
+            >
+              <X size={17} />
             </button>
           </div>
 
           <div className="px-8 py-8 space-y-8">
+
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard icon={<Car size={20} />}   label="Courses effectuées" value="0" />
-              <StatCard icon={<MapPin size={20} />} label="Km parcourus"       value="0 km" />
-              <StatCard icon={<Zap size={20} />}    label="Économies réalisées" value="$0" />
+              <StatCard icon={<Car size={18} />}        label="Courses effectuées"  value="0"     sub="Total" />
+              <StatCard icon={<MapPin size={18} />}      label="Km parcourus"         value="0 km"  sub="Trajet" />
+              <StatCard icon={<TrendingUp size={18} />}  label="Économies réalisées"  value="$0"    sub="Ce mois" />
             </div>
 
-            {/* Nav tabs (mobile) */}
+            {/* Mobile tabs */}
             <div className="flex lg:hidden gap-2">
               {[['reserver','Réserver'],['reservations','Réservations'],['profil','Profil']].map(([id, label]) => (
                 <button key={id} onClick={() => setActiveNav(id)}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${activeNav === id ? 'bg-bolt-green text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+                    activeNav === id
+                      ? 'bg-bolt-green text-white shadow-lg shadow-bolt-green/20'
+                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
+                  }`}>
                   {label}
                 </button>
               ))}
             </div>
 
-            {/* Content */}
+            {/* ── Réserver ── */}
             {activeNav === 'reserver' && (
               <section>
-                <h2 className="text-xl font-bold text-bolt-dark mb-6">Réserver un véhicule</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                <h2 className="text-xl font-bold text-white mb-6">Réserver un véhicule</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
                   {/* Car card */}
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                  <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-colors">
                     <div className="relative">
                       <img
                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg/1280px-2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg"
                         alt="Toyota Prius"
-                        className="w-full h-52 object-cover"
+                        className="w-full h-52 object-cover opacity-90"
                       />
-                      <span className="absolute top-3 left-3 bg-bolt-green text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0E1010]/80 via-transparent to-transparent" />
+                      <span className="absolute top-4 left-4 bg-bolt-green text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                         Disponible
                       </span>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-xl font-bold text-bolt-dark">Toyota Prius</h3>
-                          <p className="text-gray-400 text-sm mt-0.5">Hybride · 5 places · Automatique</p>
-                        </div>
-                        <div className="flex items-center gap-1 text-yellow-400 text-sm font-semibold">
-                          <Star size={14} fill="currentColor" /> 4.9
-                        </div>
+                      <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-yellow-400 text-sm font-semibold">
+                        <Star size={13} fill="currentColor" />
+                        <span>4.9</span>
+                        <span className="text-white/40 text-xs font-normal ml-1">· 128 avis</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
+                    </div>
+
+                    <div className="p-6">
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-white">Toyota Prius 2023</h3>
+                        <p className="text-white/40 text-sm mt-0.5">Hybride · 5 places · Automatique</p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 mb-5">
                         {[['⚡','Hybride'],['🛡️','Assuré'],['⛽','Inclus']].map(([icon, label]) => (
-                          <div key={label} className="bg-[#F5F6F7] rounded-xl px-3 py-2 text-center">
-                            <p className="text-lg">{icon}</p>
-                            <p className="text-xs text-gray-500 font-medium mt-0.5">{label}</p>
+                          <div key={label} className="bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-center">
+                            <p className="text-base">{icon}</p>
+                            <p className="text-xs text-white/50 font-medium mt-0.5">{label}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+
+                      <div className="flex items-end justify-between pt-4 border-t border-white/10">
                         <div>
-                          <span className="text-3xl font-bold text-bolt-green">$700</span>
-                          <span className="text-gray-400 text-sm ml-1">/heure</span>
+                          <span className="text-3xl font-bold text-white">$700</span>
+                          <span className="text-white/40 text-sm ml-1.5">/heure</span>
                         </div>
-                        <span className="text-xs text-gray-400">Taxe 5% incluse au total</span>
+                        <span className="text-xs text-white/30 bg-white/5 px-2.5 py-1 rounded-full">Taxe 5% incluse</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Booking form */}
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-5">
-                    <h3 className="font-bold text-bolt-dark text-lg">Détails de la réservation</h3>
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-5">
+                    <h3 className="font-bold text-white text-lg">Détails de la réservation</h3>
 
                     {ordered && (
-                      <div className="bg-bolt-green/10 border border-bolt-green/30 text-bolt-green rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2">
-                        <ChevronRight size={16} /> Pré-commande envoyée avec succès !
+                      <div className="bg-bolt-green/10 border border-bolt-green/25 text-bolt-green rounded-2xl px-4 py-3.5 text-sm font-semibold flex items-center gap-2.5">
+                        <CheckCircle size={16} className="shrink-0" />
+                        Pré-commande envoyée avec succès !
                       </div>
                     )}
 
                     {/* Date */}
                     <div>
-                      <label className="text-sm font-semibold text-bolt-dark mb-1.5 block">Date</label>
-                      <div className="border border-gray-200 rounded-xl h-11 flex items-center px-3 gap-2 focus-within:border-bolt-green transition-colors">
-                        <Calendar size={16} className="text-gray-400 shrink-0" />
-                        <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark" />
+                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Date</label>
+                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
+                        <Calendar size={15} className="text-white/30 shrink-0" />
+                        <input
+                          type="date"
+                          value={date}
+                          onChange={e => setDate(e.target.value)}
+                          className="flex-1 outline-none text-sm bg-transparent text-white [color-scheme:dark]"
+                        />
                       </div>
                     </div>
 
                     {/* Time */}
                     <div>
-                      <label className="text-sm font-semibold text-bolt-dark mb-1.5 block">Heure de départ</label>
-                      <div className="border border-gray-200 rounded-xl h-11 flex items-center px-3 gap-2 focus-within:border-bolt-green transition-colors">
-                        <Clock size={16} className="text-gray-400 shrink-0" />
-                        <input type="time" value={time} onChange={e => setTime(e.target.value)}
-                          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark" />
+                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Heure de départ</label>
+                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
+                        <Clock size={15} className="text-white/30 shrink-0" />
+                        <input
+                          type="time"
+                          value={time}
+                          onChange={e => setTime(e.target.value)}
+                          className="flex-1 outline-none text-sm bg-transparent text-white [color-scheme:dark]"
+                        />
                       </div>
                     </div>
 
                     {/* Hours stepper */}
                     <div>
-                      <label className="text-sm font-semibold text-bolt-dark mb-1.5 block">Durée de conduite</label>
-                      <div className="flex items-center gap-4">
-                        <button type="button" onClick={() => setHours(h => Math.max(1, h - 1))}
-                          className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl text-gray-400">
+                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Durée de conduite</label>
+                      <div className="bg-white/5 border border-white/10 rounded-xl h-14 flex items-center px-2">
+                        <button
+                          type="button"
+                          onClick={() => setHours(h => Math.max(1, h - 1))}
+                          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition font-bold text-lg"
+                        >
                           −
                         </button>
                         <div className="flex-1 text-center">
-                          <span className="text-3xl font-bold text-bolt-dark">{hours}</span>
-                          <span className="text-gray-400 text-sm ml-2">{hours > 1 ? 'heures' : 'heure'}</span>
+                          <span className="text-2xl font-bold text-white">{hours}</span>
+                          <span className="text-white/40 text-sm ml-2">{hours > 1 ? 'heures' : 'heure'}</span>
                         </div>
-                        <button type="button" onClick={() => setHours(h => Math.min(24, h + 1))}
-                          className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:border-bolt-green hover:text-bolt-green transition font-bold text-xl text-gray-400">
+                        <button
+                          type="button"
+                          onClick={() => setHours(h => Math.min(24, h + 1))}
+                          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition font-bold text-lg"
+                        >
                           +
                         </button>
                       </div>
@@ -258,27 +309,31 @@ const Dashboard = ({ user, onClose }) => {
 
                     {/* Address */}
                     <div>
-                      <label className="text-sm font-semibold text-bolt-dark mb-1.5 block">Adresse de prise en charge</label>
-                      <div className="border border-gray-200 rounded-xl h-11 flex items-center px-3 gap-2 focus-within:border-bolt-green transition-colors">
-                        <MapPin size={16} className="text-gray-400 shrink-0" />
-                        <input type="text" value={address} onChange={e => setAddress(e.target.value)}
+                      <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 block">Adresse de prise en charge</label>
+                      <div className="bg-white/5 border border-white/10 rounded-xl h-12 flex items-center px-4 gap-3 focus-within:border-bolt-green/50 focus-within:bg-bolt-green/5 transition-all">
+                        <MapPin size={15} className="text-white/30 shrink-0" />
+                        <input
+                          type="text"
+                          value={address}
+                          onChange={e => setAddress(e.target.value)}
                           placeholder="Ex: 12 Rue de la Paix, Paris"
-                          className="flex-1 outline-none text-sm bg-transparent text-bolt-dark placeholder-gray-300" />
+                          className="flex-1 outline-none text-sm bg-transparent text-white placeholder-white/20"
+                        />
                       </div>
                     </div>
 
                     {/* Price breakdown */}
-                    <div className="bg-[#F5F6F7] rounded-xl p-4 space-y-2.5">
-                      <div className="flex justify-between text-sm text-gray-500">
+                    <div className="bg-black/30 border border-white/[0.07] rounded-xl p-4 space-y-2.5">
+                      <div className="flex justify-between text-sm text-white/40">
                         <span>$700 × {hours} {hours > 1 ? 'heures' : 'heure'}</span>
-                        <span className="font-medium text-bolt-dark">${subtotal.toLocaleString()}</span>
+                        <span className="font-medium text-white/70">${subtotal.toLocaleString()}</span>
                       </div>
-                      <div className="flex justify-between text-sm text-gray-500">
+                      <div className="flex justify-between text-sm text-white/40">
                         <span>Taxe (5%)</span>
-                        <span className="font-medium text-bolt-dark">${tax.toFixed(2)}</span>
+                        <span className="font-medium text-white/70">${tax.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between font-bold text-bolt-dark pt-2.5 border-t border-gray-200">
-                        <span>Total</span>
+                      <div className="flex justify-between font-bold pt-2.5 border-t border-white/10">
+                        <span className="text-white">Total</span>
                         <span className="text-bolt-green text-lg">${total.toFixed(2)}</span>
                       </div>
                     </div>
@@ -286,12 +341,13 @@ const Dashboard = ({ user, onClose }) => {
                     {/* CTA */}
                     <button
                       onClick={() => setOrdered(true)}
-                      className="w-full bg-bolt-green text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#29a366] active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-sm"
+                      className="w-full bg-bolt-green text-white py-4 rounded-full font-bold text-sm hover:bg-[#29a366] active:scale-[0.98] transition-all shadow-lg shadow-bolt-green/25 flex items-center justify-center gap-2"
                     >
                       Pré-commander <ChevronRight size={16} />
                     </button>
-                    <p className="text-xs text-center text-gray-400">Annulation gratuite jusqu'à 24h avant le départ</p>
+                    <p className="text-xs text-center text-white/25">Annulation gratuite jusqu'à 24h avant le départ</p>
                   </div>
+
                 </div>
               </section>
             )}
