@@ -36,7 +36,7 @@ function App() {
       <main>
         <Hero />
         <Features />
-        <HowItWorks />
+        <HowItWorks onStartDriving={() => user ? setShowBooking(true) : setShowSignIn(true)} />
         <Testimonial />
         <VehicleTypes />
         <PricingTabs />

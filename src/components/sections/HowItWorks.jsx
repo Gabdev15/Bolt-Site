@@ -15,13 +15,13 @@ const Step = ({ number, title, description, image }) => (
   </div>
 );
 
-const HowItWorks = () => (
+const HowItWorks = ({ onStartDriving = () => {} }) => (
   <div id="clients" className="py-40 bg-[#F5F6F7]">
     <div className="max-w-[1800px] mx-auto px-6 md:px-12">
       <div className="mb-32">
         <h2 className="text-5xl md:text-7xl font-bold mb-6 text-bolt-dark">Commencer à conduire</h2>
         <p className="text-3xl text-gray-500 mb-12">Louez une voiture plus rapidement que trouver une place de parking.</p>
-        <button className="bg-bolt-green text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-[#29a366] transition transform hover:scale-[1.02]">
+        <button onClick={onStartDriving} className="bg-bolt-green text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-[#29a366] transition transform hover:scale-[1.02]">
           Commencer à conduire
         </button>
       </div>
