@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Car, MapPin, Calendar, Clock, ChevronRight, ChevronLeft, Star, CheckCircle } from 'lucide-react';
+import { Car, MapPin, Calendar, Clock, ChevronRight, ChevronLeft, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -158,10 +158,11 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
     </Card>
 
     <div>
-      <label className="text-sm font-semibold block mb-2">Date de départ</label>
+      <label htmlFor="booking-date" className="text-sm font-semibold block mb-2">Date de départ</label>
       <div className="relative flex items-center gap-2 border-2 border-slate-200 rounded-lg px-3 py-2 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
         <Calendar size={18} className="text-green-600 shrink-0" />
         <input
+          id="booking-date"
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
@@ -172,10 +173,11 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
     </div>
 
     <div>
-      <label className="text-sm font-semibold block mb-2">Heure de départ</label>
+      <label htmlFor="booking-time" className="text-sm font-semibold block mb-2">Heure de départ</label>
       <div className="relative flex items-center gap-2 border-2 border-slate-200 rounded-lg px-3 py-2 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
         <Clock size={18} className="text-green-600 shrink-0" />
         <input
+          id="booking-time"
           type="time"
           value={time}
           onChange={e => setTime(e.target.value)}
@@ -271,7 +273,7 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
   if (confirmed) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
-        <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-pulse">
+        <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-pulse motion-reduce:animate-none">
           <CheckCircle size={48} className="text-green-600" />
         </div>
         <h2 className="text-3xl font-bold">Réservation confirmée !</h2>
