@@ -76,7 +76,7 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className={`lg:hidden bg-bolt-dark fixed inset-0 z-40 overflow-y-auto px-6 pb-6 border-t border-gray-800 ${isScrolled ? 'top-20' : 'top-24'}`}>
+        <div className={`lg:hidden bg-bolt-dark fixed inset-0 z-50 overflow-y-auto px-6 pb-6 border-t border-gray-800 ${isScrolled ? 'top-20' : 'top-24'}`}>
           <div className="space-y-6 pt-6">
             {navLinks.map(({ label, href }) => (
               <a key={label} href={href} onClick={() => setIsOpen(false)} className="block text-2xl font-bold text-white">
