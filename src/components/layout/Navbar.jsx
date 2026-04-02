@@ -78,7 +78,7 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
 
       {/* Mobile menu - rendered outside nav to avoid z-index issues */}
       {isOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-50 mobile-menu">
           <div className={`bg-bolt-dark w-full h-screen overflow-y-auto px-6 pb-6 border-t border-gray-800 ${isScrolled ? 'pt-20' : 'pt-24'}`}>
             {/* Close button */}
             <div className="flex justify-end mb-6">
