@@ -80,6 +80,12 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
       {isOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
           <div className={`bg-bolt-dark w-full h-screen overflow-y-auto px-6 pb-6 border-t border-gray-800 ${isScrolled ? 'pt-20' : 'pt-24'}`}>
+            {/* Close button */}
+            <div className="flex justify-end mb-6">
+              <button onClick={() => setIsOpen(false)} className="text-white bg-white/10 p-2 rounded-full hover:bg-white/20 transition">
+                <X size={24} />
+              </button>
+            </div>
             <div className="space-y-6">
               {navLinks.map(({ label, href }) => (
                 <a key={label} href={href} onClick={() => setIsOpen(false)} className="block text-2xl font-bold text-white">
