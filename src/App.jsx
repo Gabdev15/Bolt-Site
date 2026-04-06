@@ -6,7 +6,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import RPBanner from './components/ui/RPBanner';
 import SignInModal from './components/ui/SignInModal';
-import BookingFlow from './booking/BookingFlow';
+import BookingPage from './booking/BookingPage';
 
 import Hero from './components/sections/Hero';
 import Features from './components/sections/Features';
@@ -18,25 +18,27 @@ import CitySection from './components/sections/CitySection';
 import FAQ from './components/sections/FAQ';
 
 function App() {
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [showSignIn, setShowSignIn]   = useState(false);
   const [showBooking, setShowBooking] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser]               = useState(null);
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
   }, []);
 
+  const handleBooking = () => setShowBooking(true);
+
   return (
     <div className="min-h-screen bg-white font-sans text-bolt-dark selection:bg-bolt-green selection:text-white">
       <RPBanner />
-      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
-      {showBooking && user && <BookingFlow user={user} onClose={() => setShowBooking(false)} />}
-      <Navbar onSignIn={() => setShowSignIn(true)} onDashboard={() => setShowBooking(true)} user={user} />
+      {showSignIn  && <SignInModal onClose={() => setShowSignIn(false)} />}
+      {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} />}
+      <Navbar onSignIn={() => setShowSignIn(true)} onDashboard={handleBooking} user={user} />
       <main>
-        <Hero />
+        <Hero onStartDriving={handleBooking} />
         <Features />
-        <HowItWorks onStartDriving={() => user ? setShowBooking(true) : setShowSignIn(true)} />
+        <HowItWorks onStartDriving={handleBooking} />
         <Testimonial />
         <VehicleTypes />
         <PricingTabs />

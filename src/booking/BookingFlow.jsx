@@ -157,32 +157,34 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
       </CardContent>
     </Card>
 
-    <div>
-      <label htmlFor="booking-date" className="text-sm font-semibold block mb-2">Date de départ</label>
-      <div className="relative flex items-center gap-2 border-2 border-slate-200 rounded-lg px-3 py-2 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
-        <Calendar size={18} className="text-green-600 shrink-0" />
-        <input
-          id="booking-date"
-          type="date"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-          min={new Date().toISOString().split('T')[0]}
-          className="flex-1 outline-none text-sm bg-transparent font-medium"
-        />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label htmlFor="booking-date" className="text-sm font-semibold block mb-2">Date de départ</label>
+        <div className="relative flex items-center gap-1.5 sm:gap-2 border-2 border-slate-200 rounded-lg px-2.5 sm:px-3 py-2.5 sm:py-3 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
+          <Calendar size={16} className="text-green-600 shrink-0 sm:w-[18px] sm:h-[18px]" />
+          <input
+            id="booking-date"
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className="flex-1 outline-none text-sm sm:text-base bg-transparent font-medium min-w-0 text-left"
+          />
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label htmlFor="booking-time" className="text-sm font-semibold block mb-2">Heure de départ</label>
-      <div className="relative flex items-center gap-2 border-2 border-slate-200 rounded-lg px-3 py-2 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
-        <Clock size={18} className="text-green-600 shrink-0" />
-        <input
-          id="booking-time"
-          type="time"
-          value={time}
-          onChange={e => setTime(e.target.value)}
-          className="flex-1 outline-none text-sm bg-transparent font-medium"
-        />
+      <div>
+        <label htmlFor="booking-time" className="text-sm font-semibold block mb-2">Heure de départ</label>
+        <div className="relative flex items-center gap-1.5 sm:gap-2 border-2 border-slate-200 rounded-lg px-2.5 sm:px-3 py-2.5 sm:py-3 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
+          <Clock size={16} className="text-green-600 shrink-0 sm:w-[18px] sm:h-[18px]" />
+          <input
+            id="booking-time"
+            type="time"
+            value={time}
+            onChange={e => setTime(e.target.value)}
+            className="flex-1 outline-none text-sm sm:text-base bg-transparent font-medium min-w-0 text-left"
+          />
+        </div>
       </div>
     </div>
 
