@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Hero = () => (
+const Hero = ({ onStartDriving }) => (
   <div className="relative min-h-[600px] lg:h-screen flex items-center bg-cover bg-center" style={{ backgroundImage: 'url(https://madeinvilnius.lt/wp-content/uploads/2025/06/bolt-drive-automobilis-vw-id-buzz-5-scaled.jpg)' }}>
     <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0"></div>
     <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10 w-full pt-32">
@@ -14,8 +14,18 @@ const Hero = () => (
         <p className="text-xl md:text-2xl text-gray-200 mb-12 leading-relaxed max-w-2xl">
           Pas de vérifications de service, de formulaires d'assurance, de prix de carburant ou de frais de stationnement. Roulez dans des voitures neuves à des tarifs bas avec les locations de voitures Bolt Drive.
         </p>
-        <button className="bg-bolt-green text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-[#29a366] transition shadow-lg inline-flex items-center transform hover:scale-[1.02] duration-200">
-          Commencer à conduire
+        <button className="hero-btn shadow-lg" onClick={onStartDriving}>
+          <span className="hero-btn-bg">
+            <span className="hero-btn-bg-layers">
+              <span className="hero-btn-bg-layer hero-btn-bg-layer-1"></span>
+              <span className="hero-btn-bg-layer hero-btn-bg-layer-2"></span>
+              <span className="hero-btn-bg-layer hero-btn-bg-layer-3"></span>
+            </span>
+          </span>
+          <span className="hero-btn-inner">
+            <span className="hero-btn-inner-static">Commencer à conduire</span>
+            <span className="hero-btn-inner-hover" aria-hidden="true">Commencer à conduire</span>
+          </span>
         </button>
       </div>
     </div>
