@@ -11,5 +11,13 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Validate that all required Firebase config variables are present
+const requiredConfigKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
+const missingKeys = requiredConfigKeys.filter(key => !firebaseConfig[key]);
+
+if (missingKeys.length > 0) {
+  throw new Error(`Missing required Firebase environment variables: ${missingKeys.join(', ')}. Please configure them in your .env.local file.`);
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
