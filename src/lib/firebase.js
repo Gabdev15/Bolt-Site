@@ -16,7 +16,11 @@ const requiredConfigKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket'
 const missingKeys = requiredConfigKeys.filter(key => !firebaseConfig[key]);
 
 if (missingKeys.length > 0) {
-  throw new Error(`Missing required Firebase environment variables: ${missingKeys.join(', ')}. Please configure them in your .env.local file.`);
+  const errorMsg = `Missing required Firebase environment variables: ${missingKeys.join(', ')}. Please configure them in your environment.`;
+  console.error(errorMsg);
+  // Display error to user
+  document.documentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f3f4f6;font-family:system-ui"><div style="background:white;padding:40px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);max-width:500px"><h1 style="color:#dc2626;margin:0 0 16px">Configuration Error</h1><p style="color:#6b7280;margin:0;line-height:1.6">${errorMsg}</p></div></div>`;
+  throw new Error(errorMsg);
 }
 
 const app = initializeApp(firebaseConfig);
