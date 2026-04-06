@@ -67,9 +67,9 @@ export default function BookingPage({ onClose, user }) {
     setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
   };
 
-  if (confirmed) {
-    return (
-      <div className="fixed inset-0 z-50 bg-bolt-gray flex flex-col items-center justify-center">
+  return (
+    <div className={`fixed inset-0 z-50 ${confirmed ? 'bg-bolt-gray flex flex-col items-center justify-center' : 'bg-[#f8f9fa] overflow-y-auto'} ${closing ? 'booking-closing' : 'booking-open'}`}>
+      {confirmed ? (
         <div className="bg-white rounded-3xl shadow-xl p-12 max-w-md w-full mx-4 text-center">
           <div className="w-16 h-16 bg-bolt-green rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,12 +82,8 @@ export default function BookingPage({ onClose, user }) {
             Retour à l'accueil
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`fixed inset-0 z-50 bg-[#f8f9fa] overflow-y-auto ${closing ? 'booking-closing' : 'booking-open'}`}>
+      ) : (
+        <>
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -328,6 +324,8 @@ export default function BookingPage({ onClose, user }) {
 
         </div>
       </main>
+      </>
+      )}
     </div>
   );
 }
