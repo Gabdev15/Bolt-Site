@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Clock, User, Phone, Lock } from 'lucide-react';
 
 const BOLT_LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjkiIGhlaWdodD0iNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik01NS4yNjIgMHYzMC4wNzRoLTcuMTM2VjEuNTA0TDU1LjI2MiAwek0zNC45NDUgMzIuOTI0YzEuOTcgMCAzLjU2OCAxLjU4NCAzLjU2OCAzLjUzOCAwIDEuOTU0LTEuNTk4IDMuNTM4LTMuNTY4IDMuNTM4cy0zLjU2OC0xLjU4NC0zLjU2OC0zLjUzOGMwLTEuOTU0IDEuNTk3LTMuNTM4IDMuNTY4LTMuNTM4em0wLTI0LjM4M2M2LjA3NSAwIDExLjAxIDQuODg0IDExLjAxIDEwLjkxOCAwIDYuMDM1LTQuOTM1IDEwLjkyLTExLjAxIDEwLjkyLTYuMDg1IDAtMTEuMDEtNC44ODUtMTEuMDEtMTAuOTIgMC02LjAzNCA0LjkzNS0xMC45MTggMTEuMDEtMTAuOTE4em0wIDE0LjQ1NmMxLjk3MiAwIDMuNTY4LTEuNTgyIDMuNTY4LTMuNTM4IDAtMS45NTUtMS41OTYtMy41MzgtMy41NjgtMy41MzhzLTMuNTY4IDEuNTgzLTMuNTY4IDMuNTM4YzAgMS45NTYgMS41OTYgMy41MzggMy41NjggMy41Mzh6bS0yMi40NDggMGMxLjIzIDAgMi4yMy0uOTkyIDIuMjMtMi4yMWEyLjIyNCAyLjIyNCAwIDAwLTIuMjMtMi4yMTJINy4xNDZ2NC40MjJoNS4zNTF6TTcuMTQ2IDcuMDc3djQuNDIyaDMuOTY0YzEuMjI5IDAgMi4yMy0uOTkzIDIuMjMtMi4yMTJhMi4yMjQgMi4yMjQgMCAwMC0yLjIzLTIuMjFINy4xNDZ6bTExLjkyMiA3LjA5NWMxLjcyNCAxLjY5IDIuNzk1IDQuMDMgMi43ODUgNi42MTQgMCA1LjEzLTQuMTkyIDkuMjg4LTkuMzY2IDkuMjg4SDBWMGgxMS4xYzUuMTczIDAgOS4zNjUgNC4xNTcgOS4zNjUgOS4yODcgMCAxLjc5LS41MDUgMy40Ny0xLjM5NyA0Ljg4NXpNNjguNzQgMTYuMDJoLTMuNTU4djUuNTUzYzAgMS42OC41NDUgMi45MTggMS45NzIgMi45MTguOTIyIDAgMS41OTYtLjIwNiAxLjU5Ni0uMjA2djUuMjA5cy0xLjQ3Ny44ODQtMy40NzkuODg0aC0uMDg5Yy0uMDkgMC0uMTY4LS4wMS0uMjU4LS4wMWgtLjA2OWMtLjA0IDAtLjA5LS4wMS0uMTI5LS4wMS0zLjk4NC0uMjA2LTYuNjktMi42OTItNi42OS03LjAwN1Y1LjA0MWw3LjEzNi0xLjUwM3Y1LjQwNWgzLjU2OHY3LjA3N3oiIGZpbGw9IiMyRjMxM0YiLz48L3N2Zz4=";
@@ -35,9 +35,24 @@ export default function BookingPage({ onClose, user }) {
   });
   const [confirmed, setConfirmed] = useState(false);
 
+  useEffect(() => {
+    if (user?.displayName) {
+      const [parsedFirst, parsedLast] = user.displayName.split(' ').reduce(
+        ([f, l], word, i) => i === 0 ? [word, l] : [f, l ? l + ' ' + word : word],
+        ['', '']
+      );
+      setDriver(prev => ({
+        ...prev,
+        firstName: prev.firstName || parsedFirst,
+        lastName: prev.lastName || parsedLast
+      }));
+    }
+  }, [user?.displayName]);
+
   const step1Done = date !== '';
   const step2Done = step1Done && vehicle !== null;
-  const canConfirm = step2Done && driver.firstName && driver.lastName && driver.age && driver.phone;
+  const parsedAge = parseInt(driver.age, 10);
+  const canConfirm = step2Done && driver.firstName && driver.lastName && driver.age && driver.phone && !isNaN(parsedAge) && parsedAge >= 18;
 
   const selectedVehicle = VEHICLES.find(v => v.id === vehicle);
 
@@ -45,7 +60,8 @@ export default function BookingPage({ onClose, user }) {
 
   const handleConfirm = (e) => {
     e.preventDefault();
-    if (!canConfirm || paying) return;
+    const parsedAge = parseInt(driver.age, 10);
+    if (!canConfirm || paying || isNaN(parsedAge) || parsedAge < 18) return;
     setPaying('shrinking');
     setTimeout(() => setPaying('success'), 500);
     setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
@@ -99,10 +115,11 @@ export default function BookingPage({ onClose, user }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <label htmlFor="booking-date" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <Calendar size={12} className="inline mr-1" />Date
                   </label>
                   <input
+                    id="booking-date"
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
@@ -110,10 +127,11 @@ export default function BookingPage({ onClose, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <label htmlFor="booking-time" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <Clock size={12} className="inline mr-1" />Heure
                   </label>
                   <input
+                    id="booking-time"
                     type="time"
                     value={time}
                     onChange={e => setTime(e.target.value)}
@@ -131,15 +149,18 @@ export default function BookingPage({ onClose, user }) {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
                 {VEHICLES.map(v => (
-                  <div
+                  <button
                     key={v.id}
-                    onClick={() => !v.locked && setVehicle(v.id)}
+                    type="button"
+                    onClick={() => setVehicle(v.id)}
+                    disabled={v.locked}
+                    aria-pressed={vehicle === v.id}
                     className={`group relative text-left p-5 rounded-2xl border-2 transition-all ${
                       v.locked
-                        ? 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-60'
+                        ? 'border-gray-100 bg-gray-50 opacity-60'
                         : vehicle === v.id
-                          ? 'border-bolt-green bg-white shadow-xl shadow-gray-200/50 cursor-pointer'
-                          : 'border-gray-100 bg-gray-50 hover:border-bolt-green/40 hover:bg-white cursor-pointer'
+                          ? 'border-bolt-green bg-white shadow-xl shadow-gray-200/50'
+                          : 'border-gray-100 bg-gray-50 hover:border-bolt-green/40 hover:bg-white'
                     }`}
                   >
                     {v.locked && (
@@ -166,7 +187,7 @@ export default function BookingPage({ onClose, user }) {
                       ? <p className="text-gray-400 text-xs font-medium mt-1">Prochainement disponible</p>
                       : <p className="text-bolt-green font-bold mt-1">${v.price}</p>
                     }
-                  </div>
+                  </button>
                 ))}
               </div>
             </section>
@@ -179,10 +200,11 @@ export default function BookingPage({ onClose, user }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <label htmlFor="driver-firstName" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <User size={12} className="inline mr-1" />Prénom
                   </label>
                   <input
+                    id="driver-firstName"
                     type="text"
                     placeholder="John"
                     value={driver.firstName}
@@ -191,10 +213,11 @@ export default function BookingPage({ onClose, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <label htmlFor="driver-lastName" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <User size={12} className="inline mr-1" />Nom
                   </label>
                   <input
+                    id="driver-lastName"
                     type="text"
                     placeholder="Doe"
                     value={driver.lastName}
@@ -203,8 +226,9 @@ export default function BookingPage({ onClose, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">Âge</label>
+                  <label htmlFor="driver-age" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">Âge</label>
                   <input
+                    id="driver-age"
                     type="number"
                     placeholder="25"
                     min="18"
@@ -214,10 +238,11 @@ export default function BookingPage({ onClose, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <label htmlFor="driver-phone" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <Phone size={12} className="inline mr-1" />Téléphone
                   </label>
                   <input
+                    id="driver-phone"
                     type="tel"
                     placeholder="06 12 34 56 78"
                     value={driver.phone}
