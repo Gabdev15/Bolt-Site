@@ -1,28 +1,102 @@
 import React from 'react';
+import { Lock } from 'lucide-react';
 
-const CarType = ({ title, desc, img }) => (
-  <div className="group cursor-pointer">
-    <div className="h-[400px] bg-gray-100 rounded-[32px] mb-8 overflow-hidden relative">
-      <img src={img} alt={title} className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500" />
+const VEHICLES = [
+  {
+    id: 'civic',
+    name: 'Honda Civic',
+    category: 'Citadine',
+    price: 550,
+    img: '/honda.png',
+    locked: true,
+    desc: 'Compacte et agile pour la ville.',
+  },
+  {
+    id: 'leaf',
+    name: 'Nissan Leaf',
+    category: 'Électrique',
+    price: 750,
+    img: '/nissanleaf.png',
+    locked: true,
+    desc: '100% électrique, zéro émission.',
+  },
+  {
+    id: 'prius',
+    name: 'Toyota Prius',
+    category: 'Hybride',
+    price: 650,
+    img: '/toyotaprius.png',
+    locked: false,
+    desc: 'Hybride, économique et confortable.',
+  },
+  {
+    id: 'lexus',
+    name: 'Lexus ES',
+    category: 'Luxe',
+    price: 1200,
+    img: '/lexuses.png',
+    locked: true,
+    desc: 'Premium, silencieuse et raffinée.',
+  },
+];
+
+const VehicleCard = ({ vehicle }) => (
+  <div className="group flex flex-col">
+    {/* Image area */}
+    <div className="relative bg-gray-100 rounded-2xl overflow-hidden mb-5 flex items-center justify-center h-[460px]">
+      {vehicle.locked && (
+        <div className="absolute inset-0 bg-white/30 z-10" />
+      )}
+      <img
+        src={vehicle.img}
+        alt={vehicle.name}
+        className={`w-4/5 object-contain transition-transform duration-500 group-hover:scale-105 ${vehicle.locked ? 'grayscale opacity-50' : ''}`}
+      />
+      {vehicle.locked && (
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-400 text-xs font-medium px-2.5 py-1 rounded-full z-20">
+          <Lock size={10} />
+          Prochainement
+        </span>
+      )}
+      {!vehicle.locked && (
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-500 text-xs px-2.5 py-1 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-bolt-green" />
+          Disponible
+        </span>
+      )}
     </div>
-    <h3 className="text-3xl font-bold mb-3 text-bolt-dark">{title}</h3>
-    <p className="text-gray-500 text-xl">{desc}</p>
+
+    {/* Info */}
+    <div className="flex flex-col gap-1 px-1">
+      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{vehicle.category}</span>
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-xl font-bold text-bolt-dark">{vehicle.name}</h3>
+        {!vehicle.locked && (
+          <span className="text-lg font-bold text-bolt-dark">${vehicle.price}<span className="text-sm font-normal text-gray-400">/heure</span></span>
+        )}
+      </div>
+      <p className="text-gray-400 text-sm">{vehicle.desc}</p>
+    </div>
   </div>
 );
 
 const VehicleTypes = () => (
-  <div id="flottes" className="py-40 bg-white">
-    <div className="max-w-[1800px] mx-auto px-6 md:px-12">
-      <div className="mb-24">
-        <h2 className="text-5xl md:text-7xl font-bold mb-6 text-bolt-dark">Louez la voiture qu'il vous faut</h2>
-        <p className="text-3xl text-gray-500 max-w-5xl">Petite ou grande, économique ou premium. Toutes les voitures sont entièrement assurées, avec le plein et prêtes à rouler.</p>
+  <div id="flottes" className="py-32 bg-white">
+    <div className="max-w-[1600px] mx-auto px-6 md:px-12">
+
+      <div className="mb-16">
+        <h2 className="text-5xl md:text-6xl font-bold mb-4 text-bolt-dark leading-tight">
+          Louez la voiture qu'il vous faut
+        </h2>
+        <p className="text-xl text-gray-500 max-w-2xl">
+          Toutes les voitures sont entièrement assurées, avec le plein et prêtes à rouler.
+        </p>
       </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10">
-        <CarType title="Voitures de tous les jours" desc="Quand vous avez juste besoin de roues." img="https://assets.cms.bolt.eu/Bolt_Drive_Media_8_b36cd35d7b.webp" />
-        <CarType title="SUVs" desc="Quand vous avez besoin de sièges supplémentaires." img="https://assets.cms.bolt.eu/Bolt_Drive_Media_7_30e438e9a1.webp" />
-        <CarType title="Vans et camions" desc="Quand vous avez du cargo à transporter." img="https://assets.cms.bolt.eu/Bolt_Drive_Media_6_c5c718bad6.webp" />
-        <CarType title="Voitures de luxe" desc="Quand vous voulez conduire avec style." img="https://assets.cms.bolt.eu/Bolt_Drive_Media_5_0cbbe86e4e.webp" />
-        <CarType title="Voitures de tiers" desc="Louez en quelques minutes avec Bolt Drive." img="https://assets.cms.bolt.eu/Bolt_Drive_Media_4_1e03231590.webp" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        {VEHICLES.map(v => (
+          <VehicleCard key={v.id} vehicle={v} />
+        ))}
       </div>
     </div>
   </div>

@@ -41,8 +41,8 @@ function App() {
         <HowItWorks onStartDriving={handleBooking} />
         <Testimonial />
         <VehicleTypes />
-        <PricingTabs />
-        <CitySection />
+        <PricingTabs onStartDriving={handleBooking} />
+        <CitySection onStartDriving={handleBooking} />
         <FAQ />
       </main>
       <Footer />
