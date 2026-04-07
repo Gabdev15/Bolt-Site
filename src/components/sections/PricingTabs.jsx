@@ -23,10 +23,24 @@ const PricingTabs = ({ onStartDriving }) => {
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
-    const btn = btnRefs.current[activeTab];
-    if (btn) {
-      setPillStyle({ left: btn.offsetLeft, width: btn.offsetWidth });
-    }
+    const updatePillPosition = () => {
+      const btn = btnRefs.current[activeTab];
+      if (btn) {
+        setPillStyle({ left: btn.offsetLeft, width: btn.offsetWidth });
+      }
+    };
+
+    // Calculate on mount and when activeTab changes
+    updatePillPosition();
+
+    // Recalculate on window resize and orientation change
+    window.addEventListener('resize', updatePillPosition);
+    window.addEventListener('orientationchange', updatePillPosition);
+
+    return () => {
+      window.removeEventListener('resize', updatePillPosition);
+      window.removeEventListener('orientationchange', updatePillPosition);
+    };
   }, [activeTab]);
 
   return (
@@ -65,11 +79,19 @@ const PricingTabs = ({ onStartDriving }) => {
             style={{ transform: `translateX(-${activeTab * 100}%)` }}
           >
             {TABS.map((tab, i) => (
-              <div key={i} className="min-w-full p-12 md:p-20 grid md:grid-cols-2 gap-20 items-center">
+              <div
+                key={i}
+                className="min-w-full p-12 md:p-20 grid md:grid-cols-2 gap-20 items-center"
+                aria-hidden={activeTab !== i}
+              >
                 <div>
                   <h3 className="text-5xl font-bold mb-8 text-bolt-dark">{tab.title}</h3>
                   <p className="text-2xl text-gray-500 mb-12">{tab.desc}</p>
-                  <button onClick={onStartDriving} className="bg-bolt-green text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-[#29a366] transition">
+                  <button
+                    onClick={onStartDriving}
+                    className="bg-bolt-green text-white px-10 py-5 rounded-full font-bold text-xl hover:bg-[#29a366] transition"
+                    tabIndex={activeTab !== i ? -1 : 0}
+                  >
                     Commencer dès maintenant
                   </button>
                 </div>

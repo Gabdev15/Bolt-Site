@@ -53,7 +53,7 @@ const VehicleCard = ({ vehicle }) => (
         className={`w-4/5 object-contain transition-transform duration-500 group-hover:scale-105 ${vehicle.locked ? 'grayscale opacity-50' : ''}`}
       />
       {vehicle.locked && (
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-400 text-xs font-medium px-2.5 py-1 rounded-full">
+        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-400 text-xs font-medium px-2.5 py-1 rounded-full z-20">
           <Lock size={10} />
           Prochainement
         </span>
