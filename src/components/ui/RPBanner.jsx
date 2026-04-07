@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { RP_DISCLAIMER } from '../../data/navigation';
 
 const RPBanner = () => {
   const [visible, setVisible] = useState(true);

@@ -1,0 +1,71 @@
+// Véhicules utilisés dans VehicleTypes et BookingPage
+export const VEHICLES = [
+  {
+    id: 'civic',
+    name: 'Honda Civic',
+    category: 'Citadine',
+    price: 550,
+    img: '/honda.png',
+    locked: true,
+    desc: 'Compacte et agile pour la ville.',
+  },
+  {
+    id: 'leaf',
+    name: 'Nissan Leaf',
+    category: 'Électrique',
+    price: 750,
+    img: '/nissanleaf.png',
+    locked: true,
+    desc: '100% électrique, zéro émission.',
+  },
+  {
+    id: 'prius',
+    name: 'Toyota Prius',
+    category: 'Hybride',
+    price: 650,
+    img: '/toyotaprius.png',
+    locked: false,
+    desc: 'Hybride, économique et confortable.',
+  },
+  {
+    id: 'lexus',
+    name: 'Lexus ES',
+    category: 'Luxe',
+    price: 1200,
+    img: '/lexuses.png',
+    locked: true,
+    desc: 'Premium, silencieuse et raffinée.',
+  },
+];
+
+// Véhicules utilisés dans BookingFlow (modal de réservation)
+export const BOOKING_CARS = [
+  {
+    id: 'prius',
+    name: 'Toyota Prius',
+    year: '2023',
+    type: 'Hybride',
+    seats: 5,
+    transmission: 'Automatique',
+    rating: 4.9,
+    reviews: 128,
+    price: 700,
+    available: true,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg/1280px-2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg',
+    features: [['⚡', 'Hybride'], ['🛡️', 'Assuré'], ['⛽', 'Inclus']],
+  },
+  {
+    id: 'model3',
+    name: 'Tesla Model 3',
+    year: '2024',
+    type: 'Électrique',
+    seats: 5,
+    transmission: 'Automatique',
+    rating: 5.0,
+    reviews: 64,
+    price: 950,
+    available: false,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg/1280px-2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg',
+    features: [['⚡', 'Électrique'], ['🛡️', 'Assuré'], ['📱', 'Connecté']],
+  },
+];

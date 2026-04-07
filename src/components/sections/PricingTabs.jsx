@@ -1,21 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-const TABS = [
-  {
-    label: 'Prépaiement',
-    title: 'Réservez et partez à tout moment',
-    desc: 'Payez à la minute ou au kilomètre et conduisez aussi longtemps et aussi loin que vous le souhaitez.',
-    img: 'https://assets.cms.bolt.eu/Bolt_Drive_Media_16_f6e3c84092.webp',
-    alt: 'Prepayment',
-  },
-  {
-    label: 'Locations longue durée',
-    title: "Réservez jusqu'à 30 jours à l'avance",
-    desc: "Payez un tarif fixe pour le nombre exact d'heures ou de jours pendant lesquels vous avez besoin de conduire.",
-    img: 'https://assets.cms.bolt.eu/Bolt_Drive_Media_15_8a3be56ca6.webp',
-    alt: 'Long Term',
-  },
-];
+import { PRICING_TABS } from '../../data/content';
 
 const PricingTabs = ({ onStartDriving }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -30,10 +14,8 @@ const PricingTabs = ({ onStartDriving }) => {
       }
     };
 
-    // Calculate on mount and when activeTab changes
     updatePillPosition();
 
-    // Recalculate on window resize and orientation change
     window.addEventListener('resize', updatePillPosition);
     window.addEventListener('orientationchange', updatePillPosition);
 
@@ -47,8 +29,8 @@ const PricingTabs = ({ onStartDriving }) => {
     <div className="py-20 md:py-40 bg-[#F5F6F7]">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12">
         <div className="mb-10 md:mb-24">
-          <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-8 text-bolt-dark">Payez à la minute, à la journée, ou à la distance</h2>
-          <p className="text-lg md:text-3xl text-gray-500 max-w-5xl">Tous les tarifs incluent l'assurance, le carburant, et le stationnement.</p>
+          <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-8 text-bolt-dark">{PRICING_TABS.title}</h2>
+          <p className="text-lg md:text-3xl text-gray-500 max-w-5xl">{PRICING_TABS.subtitle}</p>
         </div>
 
         {/* Tab bar — segmented slider */}
@@ -58,7 +40,7 @@ const PricingTabs = ({ onStartDriving }) => {
             className="absolute top-1.5 bottom-1.5 bg-white rounded-full shadow-sm transition-all duration-300 ease-in-out"
             style={{ left: pillStyle.left, width: pillStyle.width }}
           />
-          {TABS.map((tab, i) => (
+          {PRICING_TABS.tabs.map((tab, i) => (
             <button
               key={i}
               ref={el => (btnRefs.current[i] = el)}
@@ -78,7 +60,7 @@ const PricingTabs = ({ onStartDriving }) => {
             className="flex transition-transform duration-300 ease-in-out"
             style={{ transform: `translateX(-${activeTab * 100}%)` }}
           >
-            {TABS.map((tab, i) => (
+            {PRICING_TABS.tabs.map((tab, i) => (
               <div
                 key={i}
                 className="min-w-full p-6 md:p-12 lg:p-20 grid md:grid-cols-2 gap-8 md:gap-20 items-center"
@@ -92,7 +74,7 @@ const PricingTabs = ({ onStartDriving }) => {
                     className="bg-bolt-green text-white px-8 py-4 md:px-10 md:py-5 rounded-full font-bold text-base md:text-xl hover:bg-[#29a366] transition"
                     tabIndex={activeTab !== i ? -1 : 0}
                   >
-                    Commencer dès maintenant
+                    {PRICING_TABS.cta}
                   </button>
                 </div>
                 <div className="order-first md:order-last">

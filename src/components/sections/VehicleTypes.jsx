@@ -1,44 +1,7 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
-
-const VEHICLES = [
-  {
-    id: 'civic',
-    name: 'Honda Civic',
-    category: 'Citadine',
-    price: 550,
-    img: '/honda.png',
-    locked: true,
-    desc: 'Compacte et agile pour la ville.',
-  },
-  {
-    id: 'leaf',
-    name: 'Nissan Leaf',
-    category: 'Électrique',
-    price: 750,
-    img: '/nissanleaf.png',
-    locked: true,
-    desc: '100% électrique, zéro émission.',
-  },
-  {
-    id: 'prius',
-    name: 'Toyota Prius',
-    category: 'Hybride',
-    price: 650,
-    img: '/toyotaprius.png',
-    locked: false,
-    desc: 'Hybride, économique et confortable.',
-  },
-  {
-    id: 'lexus',
-    name: 'Lexus ES',
-    category: 'Luxe',
-    price: 1200,
-    img: '/lexuses.png',
-    locked: true,
-    desc: 'Premium, silencieuse et raffinée.',
-  },
-];
+import { VEHICLES } from '../../data/vehicles';
+import { VEHICLE_TYPES } from '../../data/content';
 
 const VehicleCard = ({ vehicle }) => (
   <div className="group flex flex-col">
@@ -83,16 +46,14 @@ const VehicleCard = ({ vehicle }) => (
 const VehicleTypes = () => (
   <div id="flottes" className="py-32 bg-white">
     <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-
       <div className="mb-16">
         <h2 className="text-5xl md:text-6xl font-bold mb-4 text-bolt-dark leading-tight">
-          Louez la voiture qu'il vous faut
+          {VEHICLE_TYPES.title}
         </h2>
         <p className="text-xl text-gray-500 max-w-2xl">
-          Toutes les voitures sont entièrement assurées, avec le plein et prêtes à rouler.
+          {VEHICLE_TYPES.subtitle}
         </p>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {VEHICLES.map(v => (
           <VehicleCard key={v.id} vehicle={v} />

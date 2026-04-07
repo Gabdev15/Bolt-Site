@@ -4,43 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-const CARS = [
-  {
-    id: 'prius',
-    name: 'Toyota Prius',
-    year: '2023',
-    type: 'Hybride',
-    seats: 5,
-    transmission: 'Automatique',
-    rating: 4.9,
-    reviews: 128,
-    price: 700,
-    available: true,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg/1280px-2023_Toyota_Prius_XLE_%28US%29%2C_front_8.27.22.jpg',
-    features: [['⚡', 'Hybride'], ['🛡️', 'Assuré'], ['⛽', 'Inclus']],
-  },
-  {
-    id: 'model3',
-    name: 'Tesla Model 3',
-    year: '2024',
-    type: 'Électrique',
-    seats: 5,
-    transmission: 'Automatique',
-    rating: 5.0,
-    reviews: 64,
-    price: 950,
-    available: false,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg/1280px-2019_Tesla_Model_3_Performance_AWD_%28facelift%2C_red%29%2C_front_8.15.19.jpg',
-    features: [['⚡', 'Électrique'], ['🛡️', 'Assuré'], ['📱', 'Connecté']],
-  },
-];
-
-const STEPS = ['Véhicule', 'Date & Heure', 'Adresse', 'Confirmation'];
+import { BOOKING_CARS } from '../data/vehicles';
+import { BOOKING_FLOW } from '../data/content';
 
 const StepIndicator = ({ current }) => (
   <div className="flex items-center justify-center gap-2 sm:gap-3 py-4 border-b border-slate-200">
-    {STEPS.map((label, i) => {
+    {BOOKING_FLOW.steps.map((label, i) => {
       const done = i < current;
       const active = i === current;
       return (
@@ -61,7 +30,7 @@ const StepIndicator = ({ current }) => (
               {label}
             </span>
           </div>
-          {i < STEPS.length - 1 && (
+          {i < BOOKING_FLOW.steps.length - 1 && (
             <div className={`h-1 w-6 sm:w-10 mx-0.5 sm:mx-1 transition-all duration-500 rounded-full ${
               done ? 'bg-green-600 shadow-md shadow-green-600/20' : 'bg-slate-200'
             }`} />
@@ -79,7 +48,7 @@ const StepVehicle = ({ selected, onSelect }) => (
       <p className="text-slate-500 text-sm mt-2">Sélectionnez la voiture qui vous convient le mieux</p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {CARS.map(car => (
+      {BOOKING_CARS.map(car => (
         <button
           key={car.id}
           onClick={() => car.available && onSelect(car)}
@@ -230,7 +199,7 @@ const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
       <textarea
         value={address}
         onChange={e => setAddress(e.target.value)}
-        placeholder="Ex: 12 Rue de la Paix, 75001 Paris"
+        placeholder={BOOKING_FLOW.addressPlaceholder}
         rows={2}
         className="flex-1 outline-none text-sm bg-transparent placeholder-slate-400 font-medium resize-none"
       />
@@ -269,7 +238,7 @@ const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
 
 const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirmed }) => {
   const subtotal = car.price * hours;
-  const tax = subtotal * 0.05;
+  const tax = subtotal * BOOKING_FLOW.taxRate;
   const total = subtotal + tax;
 
   if (confirmed) {
@@ -278,9 +247,9 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
         <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6 animate-pulse motion-reduce:animate-none">
           <CheckCircle size={48} className="text-green-600" />
         </div>
-        <h2 className="text-3xl font-bold">Réservation confirmée !</h2>
+        <h2 className="text-3xl font-bold">{BOOKING_FLOW.confirmationTitle}</h2>
         <p className="text-slate-500 text-sm mt-3 leading-relaxed max-w-xs">
-          Votre demande a été envoyée avec succès. Vous recevrez une confirmation par email sous peu.
+          {BOOKING_FLOW.confirmationMessage}
         </p>
         <Card className="mt-8 w-full border-green-600/20 bg-green-50/30">
           <CardContent className="pt-6 space-y-3">
@@ -359,7 +328,7 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
             <span className="font-semibold">${subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-600">Taxe (5%)</span>
+            <span className="text-slate-600">Taxe ({BOOKING_FLOW.taxRate * 100}%)</span>
             <span className="font-semibold">${tax.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center pt-3 border-t border-slate-200 mt-3">
@@ -373,9 +342,9 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
         onClick={onConfirm}
         className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-green-700 shadow-lg shadow-green-600/30 flex items-center justify-center gap-2"
       >
-        Confirmer la réservation <ChevronRight size={18} />
+        {BOOKING_FLOW.confirmButtonLabel} <ChevronRight size={18} />
       </Button>
-      <p className="text-xs text-center text-slate-500 font-medium">✓ Annulation gratuite jusqu'à 24h avant le départ</p>
+      <p className="text-xs text-center text-slate-500 font-medium">{BOOKING_FLOW.cancelNote}</p>
     </div>
   );
 };
@@ -412,8 +381,8 @@ const BookingFlow = ({ user, onClose }) => {
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-200 shrink-0">
           <div>
-            <p className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">🚗 Bolt Drive</p>
-            <DialogTitle className="text-xl">Réserver un véhicule</DialogTitle>
+            <p className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">{BOOKING_FLOW.label}</p>
+            <DialogTitle className="text-xl">{BOOKING_FLOW.title}</DialogTitle>
           </div>
         </DialogHeader>
 
