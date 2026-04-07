@@ -34,28 +34,28 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
             <div className="hidden lg:flex items-center space-x-8">
               <div className="flex space-x-8">
                 {NAV_LINKS.map(({ label, section }) => (
-                  <button key={label} onClick={() => scrollToSection(section)} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
+                  <button type="button" key={label} onClick={() => scrollToSection(section)} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
                     {label}
                   </button>
                 ))}
               </div>
               <div className="flex items-center space-x-6">
-                <button className="flex items-center text-sm font-bold bg-white/10 text-white px-4 py-2 rounded-full hover:bg-white/20 transition backdrop-blur-sm">
+                <button type="button" className="flex items-center text-sm font-bold bg-white/10 text-white px-4 py-2 rounded-full hover:bg-white/20 transition backdrop-blur-sm">
                   <img src={FR_FLAG} alt="FR" className="w-5 h-auto mr-2 rounded-sm" />
                   <span>FR</span>
                 </button>
                 {user ? (
                   <div className="flex items-center gap-3">
                     <span className="text-white font-bold text-sm">{user.displayName || user.email}</span>
-                    <button onClick={onDashboard} className="bg-bolt-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-[#29a366] transition shadow-sm">
+                    <button type="button" onClick={onDashboard} className="bg-bolt-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-[#29a366] transition shadow-sm">
                       {AUTH_LABELS.driveCta}
                     </button>
-                    <button onClick={() => signOut(auth)} className="bg-white/10 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-white/20 transition border border-white/20">
+                    <button type="button" onClick={() => signOut(auth)} className="bg-white/10 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-white/20 transition border border-white/20">
                       {AUTH_LABELS.logout}
                     </button>
                   </div>
                 ) : (
-                  <button onClick={onSignIn} className="bg-white text-bolt-dark px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition shadow-sm">
+                  <button type="button" onClick={onSignIn} className="bg-white text-bolt-dark px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition shadow-sm">
                     {AUTH_LABELS.signup}
                   </button>
                 )}
@@ -64,7 +64,7 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
 
             {/* Mobile hamburger */}
             <div className="lg:hidden flex items-center">
-              <button onClick={() => setIsOpen(!isOpen)} className="text-white bg-white/10 p-2 rounded-full">
+              <button type="button" onClick={() => setIsOpen(!isOpen)} className="text-white bg-white/10 p-2 rounded-full">
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
@@ -78,13 +78,13 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
           <div className={`bg-bolt-dark w-full h-screen overflow-y-auto px-6 pb-6 border-t border-gray-800 ${isScrolled ? 'pt-20' : 'pt-24'}`}>
             {/* Close button */}
             <div className="flex justify-end mb-6">
-              <button onClick={() => setIsOpen(false)} className="text-white bg-white/10 p-2 rounded-full hover:bg-white/20 transition">
+              <button type="button" onClick={() => setIsOpen(false)} className="text-white bg-white/10 p-2 rounded-full hover:bg-white/20 transition">
                 <X size={24} />
               </button>
             </div>
             <div className="space-y-6">
               {NAV_LINKS.map(({ label, section }) => (
-                <button key={label} onClick={() => { scrollToSection(section); setIsOpen(false); }} className="block text-2xl font-bold text-white">
+                <button type="button" key={label} onClick={() => { scrollToSection(section); setIsOpen(false); }} className="block text-2xl font-bold text-white">
                   {label}
                 </button>
               ))}
@@ -92,20 +92,20 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
                 {user ? (
                   <div className="space-y-3">
                     <p className="text-white font-bold text-lg">{user.displayName || user.email}</p>
-                    <button onClick={() => { onDashboard(); setIsOpen(false); }} className="w-full bg-bolt-green text-white px-6 py-4 rounded-full font-bold text-lg">
+                    <button type="button" onClick={() => { onDashboard(); setIsOpen(false); }} className="w-full bg-bolt-green text-white px-6 py-4 rounded-full font-bold text-lg">
                       {AUTH_LABELS.driveCta}
                     </button>
-                    <button onClick={() => signOut(auth)} className="w-full bg-white/10 text-white px-6 py-4 rounded-full font-bold text-lg border border-white/20">
+                    <button type="button" onClick={() => signOut(auth)} className="w-full bg-white/10 text-white px-6 py-4 rounded-full font-bold text-lg border border-white/20">
                       {AUTH_LABELS.logout}
                     </button>
                   </div>
                 ) : (
-                  <button onClick={onSignIn} className="w-full bg-white text-bolt-dark px-6 py-4 rounded-full font-bold text-lg">
+                  <button type="button" onClick={onSignIn} className="w-full bg-white text-bolt-dark px-6 py-4 rounded-full font-bold text-lg">
                     {AUTH_LABELS.signup}
                   </button>
                 )}
                 <div className="flex items-center justify-between text-white">
-                  <button className="flex items-center text-sm font-bold bg-white/10 px-4 py-2 rounded-full">
+                  <button type="button" className="flex items-center text-sm font-bold bg-white/10 px-4 py-2 rounded-full">
                     <img src={FR_FLAG} alt="FR" className="w-5 h-auto mr-2 rounded-sm" />
                     <span>FR</span>
                   </button>
