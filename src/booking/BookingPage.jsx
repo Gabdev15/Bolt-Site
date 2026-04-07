@@ -109,7 +109,7 @@ export default function BookingPage({ onClose, user }) {
                 <span className="w-8 h-8 rounded-full bg-bolt-green text-white flex items-center justify-center font-bold text-sm">1</span>
                 <h2 className="text-2xl font-bold text-bolt-dark">Date &amp; Heure</h2>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:gap-4 overflow-hidden">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <div className="min-w-0">
                   <label htmlFor="booking-date" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <Calendar size={12} className="inline mr-1" />Date
@@ -119,7 +119,7 @@ export default function BookingPage({ onClose, user }) {
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    className="w-full min-w-0 block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
                 <div className="min-w-0">
@@ -131,7 +131,7 @@ export default function BookingPage({ onClose, user }) {
                     type="time"
                     value={time}
                     onChange={e => setTime(e.target.value)}
-                    className="w-full min-w-0 block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
               </div>
