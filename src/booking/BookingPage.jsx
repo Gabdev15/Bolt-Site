@@ -4,7 +4,7 @@ import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
 import { BOOKING_PAGE } from '../data/content';
 
-export default function BookingPage({ onClose, user }) {
+export default function BookingPage({ onClose, user, onSignIn }) {
   const [closing, setClosing] = useState(false);
 
   const handleClose = () => {
@@ -270,49 +270,65 @@ export default function BookingPage({ onClose, user }) {
                 <span className="text-gray-500 text-sm">{BOOKING_PAGE.totalLabel}</span>
                 <span className="text-2xl font-bold text-bolt-dark">${selectedVehicle?.price ?? 0}</span>
               </div>
-              <div className="flex justify-center">
-                <button
-                  onClick={handleConfirm}
-                  disabled={!canConfirm || !!paying}
-                  style={{ height: '3.5rem' }}
-                  className={`bg-bolt-green text-white font-bold text-base transition-colors
-                    disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
-                    ${!paying ? 'w-full rounded-2xl hover:bg-[#29a366]' : ''}
-                    ${paying === 'shrinking' ? 'confirm-btn-shrink' : ''}
-                    ${paying === 'success'   ? 'confirm-btn-expand w-full rounded-2xl' : ''}
-                  `}
-                >
-                  {paying === 'success' ? (
-                    <span className="success-wrapper flex items-center justify-center gap-2">
-                      <svg width="22" height="22" viewBox="0 0 88 88" fill="none">
-                        <circle
-                          className="success-circle"
-                          cx="44" cy="44" r="42"
-                          stroke="white" strokeWidth="6"
-                          fill="none" strokeLinecap="round"
-                        />
-                        <path
-                          className="success-check"
-                          d="M26 44 L38 56 L62 32"
-                          stroke="white" strokeWidth="6"
-                          fill="none" strokeLinecap="round" strokeLinejoin="round"
-                        />
-                      </svg>
-                      Réservation confirmée
-                    </span>
-                  ) : paying === 'shrinking' ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3" />
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
-                      </svg>
-                    </span>
-                  ) : (
-                    BOOKING_PAGE.confirmButtonLabel
-                  )}
-                </button>
-              </div>
-              <p className="text-center text-xs text-gray-400 mt-3">{BOOKING_PAGE.confirmationPaymentNote}</p>
+              {!user ? (
+                <div className="text-center py-2">
+                  <p className="font-bold text-bolt-dark mb-1">{BOOKING_PAGE.loginPromptTitle}</p>
+                  <p className="text-xs text-gray-400 mb-4">{BOOKING_PAGE.loginPromptSubtitle}</p>
+                  <button
+                    onClick={onSignIn}
+                    className="w-full bg-bolt-green text-white font-bold py-3.5 rounded-2xl hover:bg-[#29a366] transition flex items-center justify-center gap-2"
+                  >
+                    <img src={BOLT_LOGO_DARK} alt="Bolt" className="h-4 brightness-0 invert" />
+                    {BOOKING_PAGE.loginCta}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-center">
+                    <button
+                      onClick={handleConfirm}
+                      disabled={!canConfirm || !!paying}
+                      style={{ height: '3.5rem' }}
+                      className={`bg-bolt-green text-white font-bold text-base transition-colors
+                        disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
+                        ${!paying ? 'w-full rounded-2xl hover:bg-[#29a366]' : ''}
+                        ${paying === 'shrinking' ? 'confirm-btn-shrink' : ''}
+                        ${paying === 'success'   ? 'confirm-btn-expand w-full rounded-2xl' : ''}
+                      `}
+                    >
+                      {paying === 'success' ? (
+                        <span className="success-wrapper flex items-center justify-center gap-2">
+                          <svg width="22" height="22" viewBox="0 0 88 88" fill="none">
+                            <circle
+                              className="success-circle"
+                              cx="44" cy="44" r="42"
+                              stroke="white" strokeWidth="6"
+                              fill="none" strokeLinecap="round"
+                            />
+                            <path
+                              className="success-check"
+                              d="M26 44 L38 56 L62 32"
+                              stroke="white" strokeWidth="6"
+                              fill="none" strokeLinecap="round" strokeLinejoin="round"
+                            />
+                          </svg>
+                          Réservation confirmée
+                        </span>
+                      ) : paying === 'shrinking' ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3" />
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                      ) : (
+                        BOOKING_PAGE.confirmButtonLabel
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-center text-xs text-gray-400 mt-3">{BOOKING_PAGE.confirmationPaymentNote}</p>
+                </>
+              )}
             </div>
           </aside>
 

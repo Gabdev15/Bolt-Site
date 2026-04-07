@@ -35,7 +35,7 @@ function AppContent() {
     <div className="min-h-screen bg-white font-sans text-bolt-dark selection:bg-bolt-green selection:text-white">
       <RPBanner />
       {showSignIn  && <SignInModal onClose={() => setShowSignIn(false)} />}
-      {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} />}
+      {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} onSignIn={() => setShowSignIn(true)} />}
       <Navbar onSignIn={() => setShowSignIn(true)} onDashboard={handleBooking} user={user} />
       <main>
         <Hero onStartDriving={handleBooking} />
