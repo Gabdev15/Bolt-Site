@@ -119,7 +119,7 @@ export default function BookingPage({ onClose, user }) {
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
                 <div>
@@ -131,7 +131,7 @@ export default function BookingPage({ onClose, user }) {
                     type="time"
                     value={time}
                     onChange={e => setTime(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
               </div>
