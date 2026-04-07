@@ -28,10 +28,10 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
             {/* Desktop nav */}
             <div className="hidden lg:flex items-center space-x-8">
               <div className="flex space-x-8">
-                {NAV_LINKS.map(({ label, href }) => (
-                  <a key={label} href={href} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
+                {NAV_LINKS.map(({ label, section }) => (
+                  <button key={label} onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
                     {label}
-                  </a>
+                  </button>
                 ))}
               </div>
               <div className="flex items-center space-x-6">
@@ -78,10 +78,10 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
               </button>
             </div>
             <div className="space-y-6">
-              {NAV_LINKS.map(({ label, href }) => (
-                <a key={label} href={href} onClick={() => setIsOpen(false)} className="block text-2xl font-bold text-white">
+              {NAV_LINKS.map(({ label, section }) => (
+                <button key={label} onClick={() => { document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); setIsOpen(false); }} className="block text-2xl font-bold text-white">
                   {label}
-                </a>
+                </button>
               ))}
               <div className="pt-6 border-t border-gray-800 space-y-4">
                 {user ? (
