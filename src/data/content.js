@@ -101,7 +101,7 @@ export const CITY_SECTION = {
 };
 
 export const BOOKING_PAGE = {
-  location: 'Paris, France',
+  location: 'Townsend, Tennessee',
   confirmationTitle: 'Réservation confirmée !',
   confirmationCta: "Retour à l'accueil",
   confirmationVehiclePrefix: 'Votre',
@@ -133,7 +133,7 @@ export const BOOKING_FLOW = {
     { id: 'address',  name: 'Adresse' },
     { id: 'confirm',  name: 'Confirmation' },
   ],
-  addressPlaceholder: 'Ex: 12 Rue de la Paix, 75001 Paris',
+  addressPlaceholder: 'Ex: 123 Main St, Townsend, TN 37882',
   cancelNote: "✓ Annulation gratuite jusqu'à 24h avant le départ",
   backButton: 'Retour',
   nextButton: 'Continuer',
