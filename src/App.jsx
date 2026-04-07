@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './lib/firebase';
 
+import { NotificationProvider } from './context/NotificationContext';
+import NotificationStack from './components/ui/NotificationStack';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import RPBanner from './components/ui/RPBanner';
@@ -17,7 +19,7 @@ import PricingTabs from './components/sections/PricingTabs';
 import CitySection from './components/sections/CitySection';
 import FAQ from './components/sections/FAQ';
 
-function App() {
+function AppContent() {
   const [showSignIn, setShowSignIn]   = useState(false);
   const [showBooking, setShowBooking] = useState(false);
   const [user, setUser]               = useState(null);
@@ -47,6 +49,15 @@ function App() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <NotificationProvider>
+      <NotificationStack />
+      <AppContent />
+    </NotificationProvider>
   );
 }
 

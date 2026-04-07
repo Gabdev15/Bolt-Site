@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
+import { AUTH_ERROR_MESSAGES, AUTH_LABELS } from '../../data/auth';
+import { useNotification } from '../../context/NotificationContext';
 
 const TruckLoader = () => (
   <div className="loader">
@@ -59,8 +61,8 @@ const SignInModal = ({ onClose }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const [loading, setLoading] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -71,7 +73,6 @@ const SignInModal = ({ onClose }) => {
 
   const switchMode = (newMode) => {
     setMode(newMode);
-    setError('');
     setEmail('');
     setPassword('');
     setName('');
@@ -79,7 +80,6 @@ const SignInModal = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await Promise.all([
@@ -92,17 +92,16 @@ const SignInModal = ({ onClose }) => {
       ]);
       setLoading(false);
       setSuccess(true);
+      notifySuccess(
+        isSignup ? AUTH_LABELS.successSignupTitle : AUTH_LABELS.successLoginTitle,
+        isSignup ? AUTH_LABELS.successSignupMessage : AUTH_LABELS.successLoginMessage
+      );
       setTimeout(() => handleClose(), 2200);
     } catch (err) {
-      const messages = {
-        'auth/email-already-in-use': 'Cette adresse email est déjà utilisée.',
-        'auth/invalid-email': 'Adresse email invalide.',
-        'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
-        'auth/invalid-credential': 'Email ou mot de passe incorrect.',
-        'auth/user-not-found': 'Aucun compte trouvé avec cet email.',
-        'auth/wrong-password': 'Mot de passe incorrect.',
-      };
-      setError(messages[err.code] || 'Une erreur est survenue. Réessayez.');
+      notifyError(
+        AUTH_LABELS.errorTitle,
+        AUTH_ERROR_MESSAGES[err.code] || AUTH_ERROR_MESSAGES.fallback
+      );
     } finally {
       setLoading(false);
     }
@@ -127,18 +126,18 @@ const SignInModal = ({ onClose }) => {
           />
           <button type="button" onClick={() => switchMode('signup')}
             className={`relative z-10 flex-1 py-2 rounded-[10px] text-sm font-semibold transition-colors duration-200 ${isSignup ? 'text-[#151717]' : 'text-gray-500 hover:text-gray-700'}`}>
-            S'inscrire
+            {AUTH_LABELS.signup}
           </button>
           <button type="button" onClick={() => switchMode('login')}
             className={`relative z-10 flex-1 py-2 rounded-[10px] text-sm font-semibold transition-colors duration-200 ${!isSignup ? 'text-[#151717]' : 'text-gray-500 hover:text-gray-700'}`}>
-            Se connecter
+            {AUTH_LABELS.login}
           </button>
         </div>
 
         {loading && (
           <div className="absolute inset-0 bg-white/90 rounded-[20px] flex flex-col items-center justify-center gap-3 z-10">
             <TruckLoader />
-            <p className="text-sm font-medium text-gray-500">{isSignup ? 'Création du compte...' : 'Connexion...'}</p>
+            <p className="text-sm font-medium text-gray-500">{isSignup ? AUTH_LABELS.loadingSignup : AUTH_LABELS.loadingLogin}</p>
           </div>
         )}
 
@@ -150,46 +149,43 @@ const SignInModal = ({ onClose }) => {
               <polyline points="27,46 39,58 63,32" stroke="#32BB78" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" className="success-check" />
             </svg>
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-[#151717]">{isSignup ? 'Bienvenue !' : 'Connecté !'}</h3>
-              <p className="text-gray-400 text-sm mt-1">{isSignup ? 'Votre compte a été créé avec succès.' : 'Vous êtes maintenant connecté.'}</p>
+              <h3 className="text-2xl font-bold text-[#151717]">{isSignup ? AUTH_LABELS.successSignupTitle : AUTH_LABELS.successLoginTitle}</h3>
+              <p className="text-gray-400 text-sm mt-1">{isSignup ? AUTH_LABELS.successSignupMessage : AUTH_LABELS.successLoginMessage}</p>
             </div>
           </div>
         )}
 
         <div key={mode} className="form-content flex flex-col gap-3">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 rounded-[10px] px-4 py-3 text-sm">{error}</div>
-          )}
           {isSignup && (
             <div className="flex flex-col gap-1">
-              <label className="text-[#151717] font-semibold text-sm">Nom complet <span className="text-gray-400 font-normal">(RP)</span></label>
+              <label className="text-[#151717] font-semibold text-sm">{AUTH_LABELS.fullName} <span className="text-gray-400 font-normal">{AUTH_LABELS.rpSuffix}</span></label>
               <div className="border border-[#ecedec] rounded-[10px] h-[50px] flex items-center px-3 transition-colors focus-within:border-blue-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                 </svg>
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Entrez votre nom" className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="text" required />
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={AUTH_LABELS.namePlaceholder} className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="text" required />
               </div>
             </div>
           )}
           <div className="flex flex-col gap-1">
-            <label className="text-[#151717] font-semibold text-sm">Email <span className="text-gray-400 font-normal">(RP)</span></label>
+            <label className="text-[#151717] font-semibold text-sm">{AUTH_LABELS.email} <span className="text-gray-400 font-normal">{AUTH_LABELS.rpSuffix}</span></label>
             <div className="border border-[#ecedec] rounded-[10px] h-[50px] flex items-center px-3 transition-colors focus-within:border-blue-500">
               <EmailIcon />
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Entrez votre email" className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="email" required />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder={AUTH_LABELS.emailPlaceholder} className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="email" required />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[#151717] font-semibold text-sm">Mot de passe <span className="text-gray-400 font-normal">(RP)</span></label>
+            <label className="text-[#151717] font-semibold text-sm">{AUTH_LABELS.password} <span className="text-gray-400 font-normal">{AUTH_LABELS.rpSuffix}</span></label>
             <div className="border border-[#ecedec] rounded-[10px] h-[50px] flex items-center px-3 transition-colors focus-within:border-blue-500">
               <LockIcon />
-              <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isSignup ? 'Créez un mot de passe' : 'Entrez votre mot de passe'} className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="password" required />
+              <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isSignup ? AUTH_LABELS.passwordCreatePlaceholder : AUTH_LABELS.passwordLoginPlaceholder} className="ml-2 flex-1 h-full outline-none border-none bg-transparent text-sm" type="password" required />
             </div>
           </div>
           <button type="submit" disabled={loading} className="mt-2 bg-[#151717] text-white text-[15px] font-medium rounded-[10px] h-[50px] w-full cursor-pointer hover:bg-[#2d2d2d] transition disabled:opacity-60 disabled:cursor-not-allowed">
-            {isSignup ? 'Créer mon compte' : 'Se connecter'}
+            {isSignup ? AUTH_LABELS.submitSignup : AUTH_LABELS.submitLogin}
           </button>
           <p className="text-center text-black text-sm flex items-center gap-3 before:flex-1 before:h-px before:bg-gray-200 after:flex-1 after:h-px after:bg-gray-200">
-            Ou avec
+            {AUTH_LABELS.orWith}
           </p>
           <button type="button" className="w-full h-[50px] rounded-[10px] flex justify-center items-center font-medium gap-2 border border-[#ededef] bg-white cursor-pointer hover:border-[#5865F2] hover:text-[#5865F2] transition text-sm">
             <DiscordIcon /> Discord

@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Clock, User, Phone, Lock } from 'lucide-react';
-
-const BOLT_LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjkiIGhlaWdodD0iNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik01NS4yNjIgMHYzMC4wNzRoLTcuMTM2VjEuNTA0TDU1LjI2MiAwek0zNC45NDUgMzIuOTI0YzEuOTcgMCAzLjU2OCAxLjU4NCAzLjU2OCAzLjUzOCAwIDEuOTU0LTEuNTk4IDMuNTM4LTMuNTY4IDMuNTM4cy0zLjU2OC0xLjU4NC0zLjU2OC0zLjUzOGMwLTEuOTU0IDEuNTk3LTMuNTM4IDMuNTY4LTMuNTM4em0wLTI0LjM4M2M2LjA3NSAwIDExLjAxIDQuODg0IDExLjAxIDEwLjkxOCAwIDYuMDM1LTQuOTM1IDEwLjkyLTExLjAxIDEwLjkyLTYuMDg1IDAtMTEuMDEtNC44ODUtMTEuMDEtMTAuOTIgMC02LjAzNCA0LjkzNS0xMC45MTggMTEuMDEtMTAuOTE4em0wIDE0LjQ1NmMxLjk3MiAwIDMuNTY4LTEuNTgyIDMuNTY4LTMuNTM4IDAtMS45NTUtMS41OTYtMy41MzgtMy41NjgtMy41MzhzLTMuNTY4IDEuNTgzLTMuNTY4IDMuNTM4YzAgMS45NTYgMS41OTYgMy41MzggMy41NjggMy41Mzh6bS0yMi40NDggMGMxLjIzIDAgMi4yMy0uOTkyIDIuMjMtMi4yMWEyLjIyNCAyLjIyNCAwIDAwLTIuMjMtMi4yMTJINy4xNDZ2NC40MjJoNS4zNTF6TTcuMTQ2IDcuMDc3djQuNDIyaDMuOTY0YzEuMjI5IDAgMi4yMy0uOTkzIDIuMjMtMi4yMTJhMi4yMjQgMi4yMjQgMCAwMC0yLjIzLTIuMjFINy4xNDZ6bTExLjkyMiA3LjA5NWMxLjcyNCAxLjY5IDIuNzk1IDQuMDMgMi43ODUgNi42MTQgMCA1LjEzLTQuMTkyIDkuMjg4LTkuMzY2IDkuMjg4SDBWMGgxMS4xYzUuMTczIDAgOS4zNjUgNC4xNTcgOS4zNjUgOS4yODcgMCAxLjc5LS41MDUgMy40Ny0xLjM5NyA0Ljg4NXpNNjguNzQgMTYuMDJoLTMuNTU4djUuNTUzYzAgMS42OC41NDUgMi45MTggMS45NzIgMi45MTguOTIyIDAgMS41OTYtLjIwNiAxLjU5Ni0uMjA2djUuMjA5cy0xLjQ3Ny44ODQtMy40NzkuODg0aC0uMDg5Yy0uMDkgMC0uMTY4LS4wMS0uMjU4LS4wMWgtLjA2OWMtLjA0IDAtLjA5LS4wMS0uMTI5LS4wMS0zLjk4NC0uMjA2LTYuNjktMi42OTItNi42OS03LjAwN1Y1LjA0MWw3LjEzNi0xLjUwM3Y1LjQwNWgzLjU2OHY3LjA3N3oiIGZpbGw9IiMyRjMxM0YiLz48L3N2Zz4=";
-
-const VEHICLES = [
-  { id: 'civic',  name: 'Honda Civic',   category: 'Citadine',   price: 550,  img: '/honda.png',       locked: true },
-  { id: 'leaf',   name: 'Nissan Leaf',   category: 'Électrique', price: 750,  img: '/nissanleaf.png',  locked: true },
-  { id: 'prius',  name: 'Toyota Prius',  category: 'Hybride',    price: 650,  img: '/toyotaprius.png', locked: false },
-  { id: 'lexus',  name: 'Lexus ES',      category: 'Luxe',       price: 1200, img: '/lexuses.png',     locked: true },
-];
+import { BOLT_LOGO_DARK } from '../data/assets';
+import { VEHICLES } from '../data/vehicles';
+import { BOOKING_PAGE } from '../data/content';
 
 export default function BookingPage({ onClose, user }) {
   const [closing, setClosing] = useState(false);
@@ -56,7 +50,7 @@ export default function BookingPage({ onClose, user }) {
 
   const selectedVehicle = VEHICLES.find(v => v.id === vehicle);
 
-  const [paying, setPaying] = useState(false); // 'idle' | 'shrinking' | 'success'
+  const [paying, setPaying] = useState(false);
 
   const handleConfirm = (e) => {
     e.preventDefault();
@@ -76,10 +70,10 @@ export default function BookingPage({ onClose, user }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-bolt-dark mb-2">Réservation confirmée !</h2>
-          <p className="text-gray-500 mb-8">Votre {selectedVehicle?.name} vous attend. Paiement sur place.</p>
+          <h2 className="text-2xl font-bold text-bolt-dark mb-2">{BOOKING_PAGE.confirmationTitle}</h2>
+          <p className="text-gray-500 mb-8">{BOOKING_PAGE.confirmationVehiclePrefix} {selectedVehicle?.name} {BOOKING_PAGE.confirmationVehicleSuffix}</p>
           <button onClick={handleClose} className="w-full bg-bolt-green text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#29a366] transition">
-            Retour à l'accueil
+            {BOOKING_PAGE.confirmationCta}
           </button>
         </div>
       ) : (
@@ -91,7 +85,7 @@ export default function BookingPage({ onClose, user }) {
             <ArrowLeft size={18} />
             <span>Retour</span>
           </button>
-          <img src={BOLT_LOGO} alt="Bolt" className="h-6" />
+          <img src={BOLT_LOGO_DARK} alt="Bolt" className="h-6" />
           <div className="w-20" />
         </div>
       </header>
@@ -107,7 +101,7 @@ export default function BookingPage({ onClose, user }) {
             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <span className="w-8 h-8 rounded-full bg-bolt-green text-white flex items-center justify-center font-bold text-sm">1</span>
-                <h2 className="text-2xl font-bold text-bolt-dark">Date &amp; Heure</h2>
+                <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.dateTime}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xs">
                 <div className="min-w-0">
@@ -141,7 +135,7 @@ export default function BookingPage({ onClose, user }) {
             <section className={`bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-all ${!step1Done ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
               <div className="flex items-center gap-3 mb-6">
                 <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step1Done ? 'bg-bolt-green text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
-                <h2 className="text-2xl font-bold text-bolt-dark">Véhicule</h2>
+                <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.vehicle}</h2>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
                 {VEHICLES.map(v => (
@@ -192,7 +186,7 @@ export default function BookingPage({ onClose, user }) {
             <section className={`bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-all ${!step2Done ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
               <div className="flex items-center gap-3 mb-6">
                 <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step2Done ? 'bg-bolt-green text-white' : 'bg-gray-200 text-gray-400'}`}>3</span>
-                <h2 className="text-2xl font-bold text-bolt-dark">Conducteur</h2>
+                <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.driver}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -202,7 +196,7 @@ export default function BookingPage({ onClose, user }) {
                   <input
                     id="driver-firstName"
                     type="text"
-                    placeholder="John"
+                    placeholder={BOOKING_PAGE.placeholders.firstName}
                     value={driver.firstName}
                     onChange={e => setDriver(d => ({ ...d, firstName: e.target.value }))}
                     className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
@@ -215,7 +209,7 @@ export default function BookingPage({ onClose, user }) {
                   <input
                     id="driver-lastName"
                     type="text"
-                    placeholder="Doe"
+                    placeholder={BOOKING_PAGE.placeholders.lastName}
                     value={driver.lastName}
                     onChange={e => setDriver(d => ({ ...d, lastName: e.target.value }))}
                     className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
@@ -226,7 +220,7 @@ export default function BookingPage({ onClose, user }) {
                   <input
                     id="driver-age"
                     type="number"
-                    placeholder="25"
+                    placeholder={BOOKING_PAGE.placeholders.age}
                     min="18"
                     value={driver.age}
                     onChange={e => setDriver(d => ({ ...d, age: e.target.value }))}
@@ -240,7 +234,7 @@ export default function BookingPage({ onClose, user }) {
                   <input
                     id="driver-phone"
                     type="tel"
-                    placeholder="06 12 34 56 78"
+                    placeholder={BOOKING_PAGE.placeholders.phone}
                     value={driver.phone}
                     onChange={e => setDriver(d => ({ ...d, phone: e.target.value }))}
                     className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
@@ -253,11 +247,11 @@ export default function BookingPage({ onClose, user }) {
           {/* Right — Récapitulatif */}
           <aside className="lg:col-span-4">
             <div className="sticky top-24 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-bold text-bolt-dark mb-5">Récapitulatif</h3>
+              <h3 className="text-lg font-bold text-bolt-dark mb-5">{BOOKING_PAGE.summaryTitle}</h3>
               <div className="space-y-3 text-sm mb-5">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Lieu</span>
-                  <span className="font-medium text-bolt-dark">Townsend, Tennessee</span>
+                  <span className="font-medium text-bolt-dark">{BOOKING_PAGE.location}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Date</span>
@@ -273,7 +267,7 @@ export default function BookingPage({ onClose, user }) {
                 </div>
               </div>
               <div className="border-t border-gray-100 pt-4 mb-5 flex justify-between items-center">
-                <span className="text-gray-500 text-sm">Total estimé</span>
+                <span className="text-gray-500 text-sm">{BOOKING_PAGE.totalLabel}</span>
                 <span className="text-2xl font-bold text-bolt-dark">${selectedVehicle?.price ?? 0}</span>
               </div>
               <div className="flex justify-center">
@@ -314,11 +308,11 @@ export default function BookingPage({ onClose, user }) {
                       </svg>
                     </span>
                   ) : (
-                    'Confirmer la réservation'
+                    BOOKING_PAGE.confirmButtonLabel
                   )}
                 </button>
               </div>
-              <p className="text-center text-xs text-gray-400 mt-3">Paiement sur place. Annulation gratuite.</p>
+              <p className="text-center text-xs text-gray-400 mt-3">{BOOKING_PAGE.confirmationPaymentNote}</p>
             </div>
           </aside>
 
