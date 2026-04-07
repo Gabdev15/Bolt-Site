@@ -15,7 +15,7 @@ const RPBanner = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-[200] bg-bolt-green text-white px-4 py-3 flex items-center justify-between gap-4 shadow-md">
       <div className="flex-1 text-center text-sm font-medium">
-        ⚠️ Ce site est un projet <strong>RP uniquement</strong> — il ne représente pas le vrai site de l'entreprise Bolt et n'y est pas affilié.
+        {RP_DISCLAIMER}
       </div>
       <button onClick={() => setVisible(false)} className="shrink-0 text-white/80 hover:text-white transition" aria-label="Fermer">
         <X size={18} />

@@ -20,7 +20,7 @@ export const FAQ_ITEMS = [
     answer: "Une fois que vous avez trouvé la voiture que vous souhaitez louer, il vous suffit d'appuyer sur le bouton dans votre appli Bolt pour déverrouiller le véhicule et commencer à conduire !",
   },
   {
-    question: "Où je trouve les clés de la voiture ?",
+    question: "Où puis-je trouver les clés de la voiture ?",
     answer: "Une fois que vous avez déverrouillé la voiture avec votre appli Bolt, vous trouverez les clés à l'intérieur de la voiture.",
   },
   {

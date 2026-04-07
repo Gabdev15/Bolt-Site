@@ -44,8 +44,8 @@ const StepIndicator = ({ current }) => (
 const StepVehicle = ({ selected, onSelect }) => (
   <div className="space-y-6">
     <div>
-      <h2 className="text-2xl font-bold">Choisissez votre véhicule</h2>
-      <p className="text-slate-500 text-sm mt-2">Sélectionnez la voiture qui vous convient le mieux</p>
+      <h2 className="text-2xl font-bold">{BOOKING_FLOW.vehicleStepTitle}</h2>
+      <p className="text-slate-500 text-sm mt-2">{BOOKING_FLOW.vehicleStepSubtitle}</p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {BOOKING_CARS.map(car => (
@@ -65,11 +65,11 @@ const StepVehicle = ({ selected, onSelect }) => (
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             {!car.available ? (
               <span className="absolute top-3 left-3 bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                Bientôt disponible
+                {BOOKING_FLOW.unavailable}
               </span>
             ) : (
               <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow">
-                Disponible
+                {BOOKING_FLOW.available}
               </span>
             )}
             {selected?.id === car.id && (
@@ -112,8 +112,8 @@ const StepVehicle = ({ selected, onSelect }) => (
 const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) => (
   <div className="space-y-6 max-w-lg">
     <div>
-      <h2 className="text-2xl font-bold">Quand souhaitez-vous conduire ?</h2>
-      <p className="text-slate-500 text-sm mt-2">Sélectionnez la date, l'heure et la durée</p>
+      <h2 className="text-2xl font-bold">{BOOKING_FLOW.dateTimeStepTitle}</h2>
+      <p className="text-slate-500 text-sm mt-2">{BOOKING_FLOW.dateTimeStepSubtitle}</p>
     </div>
 
     <Card className="border-green-600/20 bg-green-50/30">
@@ -190,8 +190,8 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
 const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
   <div className="space-y-6 max-w-lg">
     <div>
-      <h2 className="text-2xl font-bold">Où voulez-vous récupérer le véhicule ?</h2>
-      <p className="text-slate-500 text-sm mt-2">Saisissez votre adresse de prise en charge</p>
+      <h2 className="text-2xl font-bold">{BOOKING_FLOW.addressStepTitle}</h2>
+      <p className="text-slate-500 text-sm mt-2">{BOOKING_FLOW.addressStepSubtitle}</p>
     </div>
 
     <div className="flex items-start gap-3 border-2 border-slate-200 rounded-lg p-4 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
@@ -207,7 +207,7 @@ const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
 
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Récapitulatif</CardTitle>
+        <CardTitle className="text-base">{BOOKING_FLOW.summaryCardTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 pb-4 border-b border-slate-200">
@@ -253,7 +253,7 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
         </p>
         <Card className="mt-8 w-full border-green-600/20 bg-green-50/30">
           <CardContent className="pt-6 space-y-3">
-            <p className="text-xs font-semibold text-green-600 uppercase tracking-wider">Résumé de la réservation</p>
+            <p className="text-xs font-semibold text-green-600 uppercase tracking-wider">{BOOKING_FLOW.summaryCardTitle}</p>
             <div className="bg-white rounded-lg p-4 border border-slate-200">
               <p className="text-xs text-slate-500 mb-1">Véhicule</p>
               <p className="font-semibold text-sm">{car.name} {car.year}</p>
@@ -285,8 +285,8 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
   return (
     <div className="space-y-5 max-w-lg">
       <div>
-        <h2 className="text-2xl font-bold">Confirmez votre réservation</h2>
-        <p className="text-slate-500 text-sm mt-2">Vérifiez tous les détails avant de confirmer</p>
+        <h2 className="text-2xl font-bold">{BOOKING_FLOW.confirmStepTitle}</h2>
+        <p className="text-slate-500 text-sm mt-2">{BOOKING_FLOW.confirmStepSubtitle}</p>
       </div>
 
       <Card>
@@ -366,7 +366,8 @@ const BookingFlow = ({ user, onClose }) => {
     return true;
   };
 
-  const next = () => { if (canNext()) setStep(s => Math.min(3, s + 1)); };
+  const lastStep = BOOKING_FLOW.steps.length - 1;
+  const next = () => { if (canNext()) setStep(s => Math.min(lastStep, s + 1)); };
   const back = () => setStep(s => Math.max(0, s - 1));
 
   const handleOpenChange = (newOpen) => {
@@ -392,7 +393,7 @@ const BookingFlow = ({ user, onClose }) => {
           {step === 0 && <StepVehicle selected={selectedCar} onSelect={setSelectedCar} />}
           {step === 1 && selectedCar && <StepDateTime car={selectedCar} date={date} setDate={setDate} time={time} setTime={setTime} hours={hours} setHours={setHours} />}
           {step === 2 && selectedCar && <StepAddress car={selectedCar} date={date} time={time} hours={hours} address={address} setAddress={setAddress} />}
-          {step === 3 && selectedCar && <StepConfirmation car={selectedCar} date={date} time={time} hours={hours} address={address} onConfirm={() => setConfirmed(true)} confirmed={confirmed} />}
+          {step === lastStep && selectedCar && <StepConfirmation car={selectedCar} date={date} time={time} hours={hours} address={address} onConfirm={() => setConfirmed(true)} confirmed={confirmed} />}
         </div>
 
         {!confirmed && (
@@ -403,16 +404,16 @@ const BookingFlow = ({ user, onClose }) => {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <ChevronLeft size={16} /> Retour
+                <ChevronLeft size={16} /> {BOOKING_FLOW.backButton}
               </Button>
             )}
-            {step < 3 && (
+            {step < lastStep && (
               <Button
                 onClick={next}
                 disabled={!canNext()}
                 className="flex-1 bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-600/30"
               >
-                Continuer <ChevronRight size={16} />
+                {BOOKING_FLOW.nextButton} <ChevronRight size={16} />
               </Button>
             )}
           </div>

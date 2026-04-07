@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { AUTH_ERROR_MESSAGES, AUTH_LABELS } from '../../data/auth';
+import { useNotification } from '../../context/NotificationContext';
 
 const TruckLoader = () => (
   <div className="loader">
@@ -60,8 +61,8 @@ const SignInModal = ({ onClose }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const [loading, setLoading] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -72,7 +73,6 @@ const SignInModal = ({ onClose }) => {
 
   const switchMode = (newMode) => {
     setMode(newMode);
-    setError('');
     setEmail('');
     setPassword('');
     setName('');
@@ -80,7 +80,6 @@ const SignInModal = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await Promise.all([
@@ -93,9 +92,16 @@ const SignInModal = ({ onClose }) => {
       ]);
       setLoading(false);
       setSuccess(true);
+      notifySuccess(
+        isSignup ? AUTH_LABELS.successSignupTitle : AUTH_LABELS.successLoginTitle,
+        isSignup ? AUTH_LABELS.successSignupMessage : AUTH_LABELS.successLoginMessage
+      );
       setTimeout(() => handleClose(), 2200);
     } catch (err) {
-      setError(AUTH_ERROR_MESSAGES[err.code] || AUTH_ERROR_MESSAGES.fallback);
+      notifyError(
+        AUTH_LABELS.errorTitle,
+        AUTH_ERROR_MESSAGES[err.code] || AUTH_ERROR_MESSAGES.fallback
+      );
     } finally {
       setLoading(false);
     }
@@ -150,9 +156,6 @@ const SignInModal = ({ onClose }) => {
         )}
 
         <div key={mode} className="form-content flex flex-col gap-3">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 rounded-[10px] px-4 py-3 text-sm">{error}</div>
-          )}
           {isSignup && (
             <div className="flex flex-col gap-1">
               <label className="text-[#151717] font-semibold text-sm">{AUTH_LABELS.fullName} <span className="text-gray-400 font-normal">{AUTH_LABELS.rpSuffix}</span></label>

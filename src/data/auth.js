@@ -24,8 +24,11 @@ export const AUTH_LABELS = {
   orWith: 'Ou avec',
   loadingSignup: 'Création du compte...',
   loadingLogin: 'Connexion...',
+  errorTitle: "Erreur d'authentification",
   successSignupTitle: 'Bienvenue !',
   successLoginTitle: 'Connecté !',
   successSignupMessage: 'Votre compte a été créé avec succès.',
   successLoginMessage: 'Vous êtes maintenant connecté.',
+  logout: 'Déconnexion',
+  driveCta: 'Conduire maintenant',
 };

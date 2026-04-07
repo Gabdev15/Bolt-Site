@@ -71,7 +71,7 @@ export default function BookingPage({ onClose, user }) {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-bolt-dark mb-2">{BOOKING_PAGE.confirmationTitle}</h2>
-          <p className="text-gray-500 mb-8">Votre {selectedVehicle?.name} vous attend. Paiement sur place.</p>
+          <p className="text-gray-500 mb-8">{BOOKING_PAGE.confirmationVehiclePrefix} {selectedVehicle?.name} {BOOKING_PAGE.confirmationVehicleSuffix}</p>
           <button onClick={handleClose} className="w-full bg-bolt-green text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#29a366] transition">
             {BOOKING_PAGE.confirmationCta}
           </button>

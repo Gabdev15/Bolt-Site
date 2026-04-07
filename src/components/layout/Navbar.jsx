@@ -4,6 +4,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { BOLT_LOGO_WHITE, FR_FLAG } from '../../data/assets';
 import { NAV_LINKS } from '../../data/navigation';
+import { AUTH_LABELS } from '../../data/auth';
 
 const Navbar = ({ onSignIn, onDashboard, user }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,15 +43,15 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
                   <div className="flex items-center gap-3">
                     <span className="text-white font-bold text-sm">{user.displayName || user.email}</span>
                     <button onClick={onDashboard} className="bg-bolt-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-[#29a366] transition shadow-sm">
-                      Conduire maintenant
+                      {AUTH_LABELS.driveCta}
                     </button>
                     <button onClick={() => signOut(auth)} className="bg-white/10 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-white/20 transition border border-white/20">
-                      Déconnexion
+                      {AUTH_LABELS.logout}
                     </button>
                   </div>
                 ) : (
                   <button onClick={onSignIn} className="bg-white text-bolt-dark px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition shadow-sm">
-                    S'inscrire
+                    {AUTH_LABELS.signup}
                   </button>
                 )}
               </div>
@@ -87,15 +88,15 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
                   <div className="space-y-3">
                     <p className="text-white font-bold text-lg">{user.displayName || user.email}</p>
                     <button onClick={() => { onDashboard(); setIsOpen(false); }} className="w-full bg-bolt-green text-white px-6 py-4 rounded-full font-bold text-lg">
-                      Conduire maintenant
+                      {AUTH_LABELS.driveCta}
                     </button>
                     <button onClick={() => signOut(auth)} className="w-full bg-white/10 text-white px-6 py-4 rounded-full font-bold text-lg border border-white/20">
-                      Déconnexion
+                      {AUTH_LABELS.logout}
                     </button>
                   </div>
                 ) : (
                   <button onClick={onSignIn} className="w-full bg-white text-bolt-dark px-6 py-4 rounded-full font-bold text-lg">
-                    S'inscrire
+                    {AUTH_LABELS.signup}
                   </button>
                 )}
                 <div className="flex items-center justify-between text-white">
