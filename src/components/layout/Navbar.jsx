@@ -10,6 +10,11 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const scrollToSection = (section) => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById(section)?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth' });
+  };
+
   React.useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -29,7 +34,7 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
             <div className="hidden lg:flex items-center space-x-8">
               <div className="flex space-x-8">
                 {NAV_LINKS.map(({ label, section }) => (
-                  <button key={label} onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
+                  <button key={label} onClick={() => scrollToSection(section)} className="text-white font-bold text-sm hover:text-bolt-green transition-colors">
                     {label}
                   </button>
                 ))}
@@ -79,7 +84,7 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
             </div>
             <div className="space-y-6">
               {NAV_LINKS.map(({ label, section }) => (
-                <button key={label} onClick={() => { document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); setIsOpen(false); }} className="block text-2xl font-bold text-white">
+                <button key={label} onClick={() => { scrollToSection(section); setIsOpen(false); }} className="block text-2xl font-bold text-white">
                   {label}
                 </button>
               ))}
