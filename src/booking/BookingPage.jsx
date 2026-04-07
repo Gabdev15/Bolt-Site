@@ -14,6 +14,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
 
   const [date, setDate]       = useState('');
   const [time, setTime]       = useState('18:00');
+  const [hours, setHours]     = useState(1);
   const [vehicle, setVehicle] = useState(null);
 
   const [firstName, lastName] = (user?.displayName || '').split(' ').reduce(
@@ -127,6 +128,16 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     onChange={e => setTime(e.target.value)}
                     className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
+                </div>
+              </div>
+              <div className="mt-4 max-w-xs">
+                <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                  <Clock size={12} className="inline mr-1" />{BOOKING_PAGE.labelDuration}
+                </label>
+                <div className="flex items-center gap-4 border border-gray-200 rounded-2xl px-4 py-3 bg-gray-50">
+                  <button type="button" onClick={() => setHours(h => Math.max(1, h - 1))} className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-lg hover:border-bolt-green hover:text-bolt-green transition">−</button>
+                  <span className="flex-1 text-center font-bold text-bolt-dark">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
+                  <button type="button" onClick={() => setHours(h => Math.min(24, h + 1))} className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-lg hover:border-bolt-green hover:text-bolt-green transition">+</button>
                 </div>
               </div>
             </section>
@@ -265,10 +276,14 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                   <span className="text-gray-500">Véhicule</span>
                   <span className="font-medium text-bolt-dark">{selectedVehicle?.name || <span className="text-gray-300">À choisir</span>}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">{BOOKING_PAGE.labelDuration}</span>
+                  <span className="font-medium text-bolt-dark">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
+                </div>
               </div>
               <div className="border-t border-gray-100 pt-4 mb-5 flex justify-between items-center">
                 <span className="text-gray-500 text-sm">{BOOKING_PAGE.totalLabel}</span>
-                <span className="text-2xl font-bold text-bolt-dark">${selectedVehicle?.price ?? 0}</span>
+                <span className="text-2xl font-bold text-bolt-dark">${(selectedVehicle?.price ?? 0) * hours}</span>
               </div>
               {!user ? (
                 <div className="text-center py-2">
