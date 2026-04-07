@@ -109,7 +109,7 @@ export default function BookingPage({ onClose, user }) {
                 <span className="w-8 h-8 rounded-full bg-bolt-green text-white flex items-center justify-center font-bold text-sm">1</span>
                 <h2 className="text-2xl font-bold text-bolt-dark">Date &amp; Heure</h2>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 max-w-xs">
                 <div className="min-w-0">
                   <label htmlFor="booking-date" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
                     <Calendar size={12} className="inline mr-1" />Date
