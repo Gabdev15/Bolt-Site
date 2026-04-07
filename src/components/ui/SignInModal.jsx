@@ -187,7 +187,7 @@ const SignInModal = ({ onClose }) => {
           <p className="text-center text-black text-sm flex items-center gap-3 before:flex-1 before:h-px before:bg-gray-200 after:flex-1 after:h-px after:bg-gray-200">
             {AUTH_LABELS.orWith}
           </p>
-          <button type="button" className="w-full h-[50px] rounded-[10px] flex justify-center items-center font-medium gap-2 border border-[#ededef] bg-white cursor-pointer hover:border-[#5865F2] hover:text-[#5865F2] transition text-sm">
+          <button type="button" onClick={() => notifyError(AUTH_LABELS.discordUnavailableTitle, AUTH_LABELS.discordUnavailableMessage)} className="w-full h-[50px] rounded-[10px] flex justify-center items-center font-medium gap-2 border border-[#ededef] bg-white cursor-pointer hover:border-[#5865F2] hover:text-[#5865F2] transition text-sm">
             <DiscordIcon /> Discord
           </button>
         </div>

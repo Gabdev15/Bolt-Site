@@ -31,4 +31,6 @@ export const AUTH_LABELS = {
   successLoginMessage: 'Vous êtes maintenant connecté.',
   logout: 'Déconnexion',
   driveCta: 'Conduire maintenant',
+  discordUnavailableTitle: 'Discord indisponible',
+  discordUnavailableMessage: "La connexion avec Discord n'est pas encore disponible mais ça arrive 👀",
 };
