@@ -98,7 +98,7 @@ const NotificationStack = () => {
   const { notifications, dismiss } = useNotification();
 
   return (
-    <div className="fixed top-4 left-4 z-[300] flex flex-col gap-2 pointer-events-none">
+    <div aria-live="polite" className="fixed top-4 left-4 z-[300] flex flex-col gap-2 pointer-events-none">
       {notifications.map(n => (
         <div key={n.id} className="pointer-events-auto">
           <NotificationItem notification={n} onDismiss={dismiss} />

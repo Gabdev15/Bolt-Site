@@ -11,17 +11,17 @@
   }
 }
 
-@keyframes notifSlideIn {
+@keyframes notif-slide-in {
   from { transform: translateX(calc(-100% - 1rem)); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
-@keyframes notifSlideOut {
+@keyframes notif-slide-out {
   from { transform: translateX(0); opacity: 1; }
   to   { transform: translateX(calc(-100% - 1rem)); opacity: 0; }
 }
 
-.notification-enter { animation: notifSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-.notification-exit  { animation: notifSlideOut 0.25s ease-in forwards; }
+.notification-enter { animation: notif-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.notification-exit  { animation: notif-slide-out 0.25s ease-in forwards; }
 
 /* RPBanner — CSS transitions (interruptible, GPU-only) */
 .rp-banner {

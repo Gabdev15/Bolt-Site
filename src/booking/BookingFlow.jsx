@@ -9,11 +9,11 @@ import { BOOKING_FLOW } from '../data/content';
 
 const StepIndicator = ({ current }) => (
   <div className="flex items-center justify-center gap-2 sm:gap-3 py-4 border-b border-slate-200">
-    {BOOKING_FLOW.steps.map((label, i) => {
+    {BOOKING_FLOW.steps.map((step, i) => {
       const done = i < current;
       const active = i === current;
       return (
-        <React.Fragment key={i}>
+        <React.Fragment key={step.id}>
           <div className="flex flex-col items-center gap-1.5">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 ${
               done ? 'bg-green-600 text-white shadow-lg shadow-green-600/25'
@@ -27,7 +27,7 @@ const StepIndicator = ({ current }) => (
               : done ? 'text-green-600/70'
               : 'text-slate-400'
             }`}>
-              {label}
+              {step.name}
             </span>
           </div>
           {i < BOOKING_FLOW.steps.length - 1 && (
@@ -80,7 +80,7 @@ const StepVehicle = ({ selected, onSelect }) => (
             <div className="absolute bottom-3 left-3 flex items-center gap-1 text-yellow-400 text-sm font-semibold">
               <Star size={12} fill="currentColor" />
               <span>{car.rating}</span>
-              <span className="text-white/60 text-xs font-normal">· {car.reviews} avis</span>
+              <span className="text-white/60 text-xs font-normal">· {car.reviews} {BOOKING_FLOW.reviewsSuffix}</span>
             </div>
           </div>
 
@@ -88,11 +88,11 @@ const StepVehicle = ({ selected, onSelect }) => (
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-bold text-lg leading-tight">{car.name}</h3>
-                <p className="text-slate-400 text-xs mt-0.5">{car.type} · {car.seats} places · {car.transmission}</p>
+                <p className="text-slate-400 text-xs mt-0.5">{car.type} · {car.seats} {BOOKING_FLOW.seatsSuffix} · {car.transmission}</p>
               </div>
               <div className="text-right shrink-0 ml-3">
                 <p className="text-xl font-bold text-green-600">${car.price}</p>
-                <p className="text-slate-400 text-xs">/heure</p>
+                <p className="text-slate-400 text-xs">{BOOKING_FLOW.perHour}</p>
               </div>
             </div>
             <div className="flex gap-2 mt-3">
@@ -121,14 +121,14 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
         <img src={car.image} alt={car.name} className="w-16 h-12 object-cover rounded-lg" />
         <div className="flex-1">
           <p className="font-semibold text-sm">{car.name} <span className="text-slate-400 font-normal">{car.year}</span></p>
-          <p className="text-green-600 text-sm font-semibold mt-1">${car.price}<span className="text-slate-400 font-normal">/heure</span></p>
+          <p className="text-green-600 text-sm font-semibold mt-1">${car.price}<span className="text-slate-400 font-normal">{BOOKING_FLOW.perHour}</span></p>
         </div>
       </CardContent>
     </Card>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label htmlFor="booking-date" className="text-sm font-semibold block mb-2">Date de départ</label>
+        <label htmlFor="booking-date" className="text-sm font-semibold block mb-2">{BOOKING_FLOW.labelDate}</label>
         <div className="relative flex items-center gap-1.5 sm:gap-2 border-2 border-slate-200 rounded-lg px-2.5 sm:px-3 py-2.5 sm:py-3 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
           <Calendar size={16} className="text-green-600 shrink-0 sm:w-[18px] sm:h-[18px]" />
           <input
@@ -143,7 +143,7 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
       </div>
 
       <div>
-        <label htmlFor="booking-time" className="text-sm font-semibold block mb-2">Heure de départ</label>
+        <label htmlFor="booking-time" className="text-sm font-semibold block mb-2">{BOOKING_FLOW.labelTime}</label>
         <div className="relative flex items-center gap-1.5 sm:gap-2 border-2 border-slate-200 rounded-lg px-2.5 sm:px-3 py-2.5 sm:py-3 focus-within:border-green-600 focus-within:ring-2 focus-within:ring-green-600/10 transition-all">
           <Clock size={16} className="text-green-600 shrink-0 sm:w-[18px] sm:h-[18px]" />
           <input
@@ -158,7 +158,7 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
     </div>
 
     <div>
-      <label className="text-sm font-semibold block mb-2">Durée de conduite</label>
+      <label className="text-sm font-semibold block mb-2">{BOOKING_FLOW.labelDuration}</label>
       <div className="flex items-center justify-between border-2 border-slate-200 rounded-lg p-3 bg-slate-50">
         <Button
           type="button"
@@ -171,7 +171,7 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
         </Button>
         <div className="text-center">
           <div className="text-3xl font-bold">{hours}</div>
-          <div className="text-xs text-slate-500 font-medium">{hours > 1 ? 'heures' : 'heure'}</div>
+          <div className="text-xs text-slate-500 font-medium">{hours > 1 ? BOOKING_FLOW.hourPlural : BOOKING_FLOW.hourSingular}</div>
         </div>
         <Button
           type="button"
@@ -214,21 +214,21 @@ const StepAddress = ({ address, setAddress, car, date, time, hours }) => (
           <img src={car.image} alt={car.name} className="w-16 h-12 object-cover rounded-lg" />
           <div>
             <p className="font-semibold text-sm">{car.name}</p>
-            <p className="text-slate-500 text-xs mt-0.5">{car.type} · {car.seats} places</p>
+            <p className="text-slate-500 text-xs mt-0.5">{car.type} · {car.seats} {BOOKING_FLOW.seatsSuffix}</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Date</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelDateShort}</p>
             <p className="font-semibold text-sm mt-1">{date || '—'}</p>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Heure</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelTimeShort}</p>
             <p className="font-semibold text-sm mt-1">{time || '—'}</p>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 col-span-2">
-            <p className="text-slate-500 text-xs font-medium">Durée</p>
-            <p className="font-semibold text-sm mt-1">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelDurationShort}</p>
+            <p className="font-semibold text-sm mt-1">{hours} {hours > 1 ? BOOKING_FLOW.hourPlural : BOOKING_FLOW.hourSingular}</p>
           </div>
         </div>
       </CardContent>
@@ -255,25 +255,25 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
           <CardContent className="pt-6 space-y-3">
             <p className="text-xs font-semibold text-green-600 uppercase tracking-wider">{BOOKING_FLOW.summaryCardTitle}</p>
             <div className="bg-white rounded-lg p-4 border border-slate-200">
-              <p className="text-xs text-slate-500 mb-1">Véhicule</p>
+              <p className="text-xs text-slate-500 mb-1">{BOOKING_FLOW.labelVehicle}</p>
               <p className="font-semibold text-sm">{car.name} {car.year}</p>
             </div>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <p className="text-slate-500 font-medium mb-1">Durée</p>
+                <p className="text-slate-500 font-medium mb-1">{BOOKING_FLOW.labelDurationShort}</p>
                 <p className="font-bold">{hours}h</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <p className="text-slate-500 font-medium mb-1">Prix</p>
+                <p className="text-slate-500 font-medium mb-1">{BOOKING_FLOW.labelPrice}</p>
                 <p className="font-bold text-green-600">${total.toFixed(2)}</p>
               </div>
               <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <p className="text-slate-500 font-medium mb-1">Date</p>
+                <p className="text-slate-500 font-medium mb-1">{BOOKING_FLOW.labelDateShort}</p>
                 <p className="font-bold text-sm">{date}</p>
               </div>
             </div>
             <div className="bg-white rounded-lg p-3 border border-slate-200">
-              <p className="text-slate-500 text-xs font-medium mb-1">Adresse</p>
+              <p className="text-slate-500 text-xs font-medium mb-1">{BOOKING_FLOW.labelAddress}</p>
               <p className="font-medium text-xs">{address}</p>
             </div>
           </CardContent>
@@ -295,24 +295,24 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           <div className="absolute bottom-4 left-4">
             <p className="text-white font-bold text-lg">{car.name}</p>
-            <p className="text-white/70 text-xs mt-0.5">{car.type} · {car.seats} places · {car.year}</p>
+            <p className="text-white/70 text-xs mt-0.5">{car.type} · {car.seats} {BOOKING_FLOW.seatsSuffix} · {car.year}</p>
           </div>
         </div>
         <CardContent className="pt-4 grid grid-cols-2 gap-3">
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Date</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelDateShort}</p>
             <p className="font-semibold text-sm mt-1">{date}</p>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Heure</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelTimeShort}</p>
             <p className="font-semibold text-sm mt-1">{time}</p>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Durée</p>
-            <p className="font-semibold text-sm mt-1">{hours} {hours > 1 ? 'heures' : 'heure'}</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelDurationShort}</p>
+            <p className="font-semibold text-sm mt-1">{hours} {hours > 1 ? BOOKING_FLOW.hourPlural : BOOKING_FLOW.hourSingular}</p>
           </div>
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-slate-500 text-xs font-medium">Adresse</p>
+            <p className="text-slate-500 text-xs font-medium">{BOOKING_FLOW.labelAddress}</p>
             <p className="font-semibold text-sm mt-1 truncate">{address}</p>
           </div>
         </CardContent>
@@ -320,19 +320,19 @@ const StepConfirmation = ({ car, date, time, hours, address, onConfirm, confirme
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Détail du prix</CardTitle>
+          <CardTitle className="text-base">{BOOKING_FLOW.priceDetailTitle}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-600">${car.price} × {hours} {hours > 1 ? 'heures' : 'heure'}</span>
+            <span className="text-slate-600">${car.price} × {hours} {hours > 1 ? BOOKING_FLOW.hourPlural : BOOKING_FLOW.hourSingular}</span>
             <span className="font-semibold">${subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-600">Taxe ({BOOKING_FLOW.taxRate * 100}%)</span>
+            <span className="text-slate-600">{BOOKING_FLOW.labelTax} ({BOOKING_FLOW.taxRate * 100}%)</span>
             <span className="font-semibold">${tax.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center pt-3 border-t border-slate-200 mt-3">
-            <span className="font-semibold">Total</span>
+            <span className="font-semibold">{BOOKING_FLOW.labelTotal}</span>
             <span className="text-green-600 font-bold text-lg">${total.toFixed(2)}</span>
           </div>
         </CardContent>
@@ -359,14 +359,31 @@ const BookingFlow = ({ user, onClose }) => {
   const [confirmed, setConfirmed] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
 
-  const canNext = () => {
-    if (step === 0) return !!selectedCar;
-    if (step === 1) return !!date && !!time;
-    if (step === 2) return address.trim().length > 3;
-    return true;
-  };
+  const STEPS_CONFIG = [
+    {
+      id: 'vehicle',
+      validator: () => !!selectedCar,
+      render: () => <StepVehicle selected={selectedCar} onSelect={setSelectedCar} />,
+    },
+    {
+      id: 'datetime',
+      validator: () => !!date && !!time,
+      render: () => selectedCar && <StepDateTime car={selectedCar} date={date} setDate={setDate} time={time} setTime={setTime} hours={hours} setHours={setHours} />,
+    },
+    {
+      id: 'address',
+      validator: () => address.trim().length > 3,
+      render: () => selectedCar && <StepAddress car={selectedCar} date={date} time={time} hours={hours} address={address} setAddress={setAddress} />,
+    },
+    {
+      id: 'confirm',
+      validator: () => true,
+      render: () => selectedCar && <StepConfirmation car={selectedCar} date={date} time={time} hours={hours} address={address} onConfirm={() => setConfirmed(true)} confirmed={confirmed} />,
+    },
+  ];
 
-  const lastStep = BOOKING_FLOW.steps.length - 1;
+  const lastStep = STEPS_CONFIG.length - 1;
+  const canNext = () => STEPS_CONFIG[step]?.validator() ?? true;
   const next = () => { if (canNext()) setStep(s => Math.min(lastStep, s + 1)); };
   const back = () => setStep(s => Math.max(0, s - 1));
 
@@ -390,10 +407,7 @@ const BookingFlow = ({ user, onClose }) => {
         <StepIndicator current={step} />
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
-          {step === 0 && <StepVehicle selected={selectedCar} onSelect={setSelectedCar} />}
-          {step === 1 && selectedCar && <StepDateTime car={selectedCar} date={date} setDate={setDate} time={time} setTime={setTime} hours={hours} setHours={setHours} />}
-          {step === 2 && selectedCar && <StepAddress car={selectedCar} date={date} time={time} hours={hours} address={address} setAddress={setAddress} />}
-          {step === lastStep && selectedCar && <StepConfirmation car={selectedCar} date={date} time={time} hours={hours} address={address} onConfirm={() => setConfirmed(true)} confirmed={confirmed} />}
+          {STEPS_CONFIG[step]?.render()}
         </div>
 
         {!confirmed && (

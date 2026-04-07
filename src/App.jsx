@@ -33,7 +33,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-bolt-dark selection:bg-bolt-green selection:text-white">
-      <NotificationStack />
       <RPBanner />
       {showSignIn  && <SignInModal onClose={() => setShowSignIn(false)} />}
       {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} />}
@@ -56,6 +55,7 @@ function AppContent() {
 function App() {
   return (
     <NotificationProvider>
+      <NotificationStack />
       <AppContent />
     </NotificationProvider>
   );
