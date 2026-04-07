@@ -42,7 +42,12 @@ const NotificationItem = ({ notification, onDismiss }) => {
   const s = STYLES[notification.type] || STYLES.info;
 
   useEffect(() => {
-    const step = 100 / (notification.duration / 50);
+    const duration = Number(notification.duration);
+    if (!Number.isFinite(duration) || duration <= 0) {
+      setProgress(0);
+      return;
+    }
+    const step = 100 / (duration / 50);
     const interval = setInterval(() => {
       setProgress(p => {
         const next = p - step;

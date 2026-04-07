@@ -18,7 +18,7 @@ const Footer = () => (
         ))}
       </div>
       <div className="pt-12 border-t border-gray-200 space-y-4">
-        <p className="text-center text-bolt-dark font-bold text-sm">{RP_DISCLAIMER}</p>
+        <p className="text-center text-bolt-dark font-bold text-sm">{RP_DISCLAIMER.pre}{RP_DISCLAIMER.highlight}{RP_DISCLAIMER.post}</p>
         <div className="flex justify-end">
           <button className="flex items-center text-lg font-bold bg-white border border-gray-200 px-6 py-3 rounded-full hover:bg-gray-50">
             <img src={FR_FLAG} alt="FR" className="w-6 h-auto mr-2 rounded-sm" />

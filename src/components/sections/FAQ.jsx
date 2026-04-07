@@ -19,7 +19,7 @@ const FAQItem = ({ question, answer }) => {
           <Plus size={24} className="text-white" />
         </span>
       </button>
-      <div className="faq-content" data-open={isOpen || undefined}>
+      <div className="faq-content" data-open={isOpen || undefined} aria-hidden={!isOpen}>
         <div className="faq-content-inner">
           <div className="faq-answer mt-8 pb-2 text-gray-400 leading-relaxed max-w-4xl text-xl">{answer}</div>
         </div>
