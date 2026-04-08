@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Clock, User, Phone, Lock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Timer, Minus, Plus, User, Phone, Lock } from 'lucide-react';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
 import { BOOKING_PAGE } from '../data/content';
 
-export default function BookingPage({ onClose, user }) {
+export default function BookingPage({ onClose, user, onSignIn }) {
   const [closing, setClosing] = useState(false);
 
   const handleClose = () => {
@@ -14,6 +14,27 @@ export default function BookingPage({ onClose, user }) {
 
   const [date, setDate]       = useState('');
   const [time, setTime]       = useState('18:00');
+  const [hours, setHours]     = useState(1);
+
+  const maxHours = BOOKING_PAGE.durationLimits[time] ?? 1;
+
+  const timeOptions = (() => {
+    const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
+    const [maxH] = BOOKING_PAGE.timeMax.split(':').map(Number);
+    const opts = [];
+    for (let h = minH; h <= maxH; h++) opts.push(`${String(h).padStart(2, '0')}:00`);
+    return opts;
+  })();
+
+  const handleTimeChange = (e) => {
+    const raw = e.target.value;
+    const clamped = raw < BOOKING_PAGE.timeMin ? BOOKING_PAGE.timeMin
+                  : raw > BOOKING_PAGE.timeMax ? BOOKING_PAGE.timeMax
+                  : raw;
+    setTime(clamped);
+    const max = BOOKING_PAGE.durationLimits[clamped] ?? 1;
+    setHours(h => Math.min(h, max));
+  };
   const [vehicle, setVehicle] = useState(null);
 
   const [firstName, lastName] = (user?.displayName || '').split(' ').reduce(
@@ -103,30 +124,57 @@ export default function BookingPage({ onClose, user }) {
                 <span className="w-8 h-8 rounded-full bg-bolt-green text-white flex items-center justify-center font-bold text-sm">1</span>
                 <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.dateTime}</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xs">
-                <div className="min-w-0">
-                  <label htmlFor="booking-date" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <Calendar size={12} className="inline mr-1" />Date
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                  <label htmlFor="booking-date" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Calendar size={11} />Date
                   </label>
                   <input
                     id="booking-date"
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
-                <div className="min-w-0">
-                  <label htmlFor="booking-time" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <Clock size={12} className="inline mr-1" />Heure
+                <div>
+                  <label htmlFor="booking-time" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Clock size={11} />Heure
                   </label>
-                  <input
+                  <select
                     id="booking-time"
-                    type="time"
                     value={time}
-                    onChange={e => setTime(e.target.value)}
-                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
-                  />
+                    onChange={handleTimeChange}
+                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition appearance-none cursor-pointer"
+                  >
+                    {timeOptions.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Timer size={11} />{BOOKING_PAGE.labelDuration}
+                  </label>
+                  <div className="flex items-center justify-between border border-gray-200 rounded-2xl px-4 py-3.5 bg-gray-50 hover:border-gray-300 transition">
+                    <button
+                      type="button"
+                      onClick={() => setHours(h => Math.max(1, h - 1))}
+                      disabled={hours <= 1}
+                      aria-label={`Réduire la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
+                      style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
+                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
+                    ><Minus size={14} strokeWidth={2.5} /></button>
+                    <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
+                    <button
+                      type="button"
+                      onClick={() => setHours(h => Math.min(maxHours, h + 1))}
+                      disabled={hours >= maxHours}
+                      aria-label={`Augmenter la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
+                      style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
+                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
+                    ><Plus size={14} strokeWidth={2.5} /></button>
+                  </div>
                 </div>
               </div>
             </section>
@@ -175,7 +223,7 @@ export default function BookingPage({ onClose, user }) {
                     <p className="font-bold text-bolt-dark">{v.name}</p>
                     {v.locked
                       ? <p className="text-gray-400 text-xs font-medium mt-1">Prochainement disponible</p>
-                      : <p className="text-bolt-green font-bold mt-1">${v.price}</p>
+                      : <p className="text-bolt-green font-bold mt-1">${v.price}<span className="text-xs font-normal">{BOOKING_PAGE.perHour}</span></p>
                     }
                   </button>
                 ))}
@@ -265,54 +313,74 @@ export default function BookingPage({ onClose, user }) {
                   <span className="text-gray-500">Véhicule</span>
                   <span className="font-medium text-bolt-dark">{selectedVehicle?.name || <span className="text-gray-300">À choisir</span>}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">{BOOKING_PAGE.labelDuration}</span>
+                  <span className="font-medium text-bolt-dark">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
+                </div>
               </div>
               <div className="border-t border-gray-100 pt-4 mb-5 flex justify-between items-center">
                 <span className="text-gray-500 text-sm">{BOOKING_PAGE.totalLabel}</span>
-                <span className="text-2xl font-bold text-bolt-dark">${selectedVehicle?.price ?? 0}</span>
+                <span className="text-2xl font-bold text-bolt-dark">${(selectedVehicle?.price ?? 0) * hours}</span>
               </div>
-              <div className="flex justify-center">
-                <button
-                  onClick={handleConfirm}
-                  disabled={!canConfirm || !!paying}
-                  style={{ height: '3.5rem' }}
-                  className={`bg-bolt-green text-white font-bold text-base transition-colors
-                    disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
-                    ${!paying ? 'w-full rounded-2xl hover:bg-[#29a366]' : ''}
-                    ${paying === 'shrinking' ? 'confirm-btn-shrink' : ''}
-                    ${paying === 'success'   ? 'confirm-btn-expand w-full rounded-2xl' : ''}
-                  `}
-                >
-                  {paying === 'success' ? (
-                    <span className="success-wrapper flex items-center justify-center gap-2">
-                      <svg width="22" height="22" viewBox="0 0 88 88" fill="none">
-                        <circle
-                          className="success-circle"
-                          cx="44" cy="44" r="42"
-                          stroke="white" strokeWidth="6"
-                          fill="none" strokeLinecap="round"
-                        />
-                        <path
-                          className="success-check"
-                          d="M26 44 L38 56 L62 32"
-                          stroke="white" strokeWidth="6"
-                          fill="none" strokeLinecap="round" strokeLinejoin="round"
-                        />
-                      </svg>
-                      Réservation confirmée
-                    </span>
-                  ) : paying === 'shrinking' ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3" />
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
-                      </svg>
-                    </span>
-                  ) : (
-                    BOOKING_PAGE.confirmButtonLabel
-                  )}
-                </button>
-              </div>
-              <p className="text-center text-xs text-gray-400 mt-3">{BOOKING_PAGE.confirmationPaymentNote}</p>
+              {!user ? (
+                <div className="text-center py-2">
+                  <p className="font-bold text-bolt-dark mb-1">{BOOKING_PAGE.loginPromptTitle}</p>
+                  <p className="text-xs text-gray-400 mb-4">{BOOKING_PAGE.loginPromptSubtitle}</p>
+                  <button
+                    onClick={onSignIn}
+                    className="w-full bg-bolt-green text-white font-bold py-3.5 rounded-2xl hover:bg-[#29a366] transition flex items-center justify-center gap-2"
+                  >
+                    <img src={BOLT_LOGO_DARK} alt="Bolt" className="h-4 brightness-0 invert" />
+                    {BOOKING_PAGE.loginCta}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-center">
+                    <button
+                      onClick={handleConfirm}
+                      disabled={!canConfirm || !!paying}
+                      style={{ height: '3.5rem' }}
+                      className={`bg-bolt-green text-white font-bold text-base transition-colors
+                        disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
+                        ${!paying ? 'w-full rounded-2xl hover:bg-[#29a366]' : ''}
+                        ${paying === 'shrinking' ? 'confirm-btn-shrink' : ''}
+                        ${paying === 'success'   ? 'confirm-btn-expand w-full rounded-2xl' : ''}
+                      `}
+                    >
+                      {paying === 'success' ? (
+                        <span className="success-wrapper flex items-center justify-center gap-2">
+                          <svg width="22" height="22" viewBox="0 0 88 88" fill="none">
+                            <circle
+                              className="success-circle"
+                              cx="44" cy="44" r="42"
+                              stroke="white" strokeWidth="6"
+                              fill="none" strokeLinecap="round"
+                            />
+                            <path
+                              className="success-check"
+                              d="M26 44 L38 56 L62 32"
+                              stroke="white" strokeWidth="6"
+                              fill="none" strokeLinecap="round" strokeLinejoin="round"
+                            />
+                          </svg>
+                          Réservation confirmée
+                        </span>
+                      ) : paying === 'shrinking' ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3" />
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                      ) : (
+                        BOOKING_PAGE.confirmButtonLabel
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-center text-xs text-gray-400 mt-3">{BOOKING_PAGE.confirmationPaymentNote}</p>
+                </>
+              )}
             </div>
           </aside>
 
