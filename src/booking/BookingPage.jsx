@@ -15,6 +15,15 @@ export default function BookingPage({ onClose, user, onSignIn }) {
   const [date, setDate]       = useState('');
   const [time, setTime]       = useState('18:00');
   const [hours, setHours]     = useState(1);
+
+  const maxHours = time >= '21:00' ? 2 : 4;
+
+  const handleTimeChange = (e) => {
+    const newTime = e.target.value;
+    setTime(newTime);
+    const max = newTime >= '21:00' ? 2 : 4;
+    setHours(h => Math.min(h, max));
+  };
   const [vehicle, setVehicle] = useState(null);
 
   const [firstName, lastName] = (user?.displayName || '').split(' ').reduce(
@@ -125,7 +134,9 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     id="booking-time"
                     type="time"
                     value={time}
-                    onChange={e => setTime(e.target.value)}
+                    min="18:00"
+                    max="21:00"
+                    onChange={handleTimeChange}
                     className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
@@ -137,13 +148,15 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     <button
                       type="button"
                       onClick={() => setHours(h => Math.max(1, h - 1))}
-                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 transition shadow-sm select-none"
+                      disabled={hours <= 1}
+                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
                     >−</button>
                     <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
                     <button
                       type="button"
-                      onClick={() => setHours(h => Math.min(24, h + 1))}
-                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 transition shadow-sm select-none"
+                      onClick={() => setHours(h => Math.min(maxHours, h + 1))}
+                      disabled={hours >= maxHours}
+                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
                     >+</button>
                   </div>
                 </div>
