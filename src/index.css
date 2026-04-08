@@ -412,6 +412,29 @@
 .booking-open    { animation: booking-in  0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 .booking-closing { animation: booking-out 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 
+/* ── Booking Confirmation ── */
+@keyframes confirm-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes confirm-card-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes confirm-card-out {
+  from { opacity: 1; transform: translateY(0)   scale(1);    }
+  to   { opacity: 0; transform: translateY(10px) scale(0.94); }
+}
+.confirm-backdrop { animation: confirm-backdrop-in 250ms ease forwards; }
+.confirm-card-in  { animation: confirm-card-in  300ms cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+.confirm-card-out { animation: confirm-card-out 200ms cubic-bezier(0.55, 0, 1, 0.45) forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-backdrop,
+  .confirm-card-in,
+  .confirm-card-out { animation: none; }
+}
+
 /* ── Mobile Menu ── */
 @keyframes mobileMenuIn {
   from {
