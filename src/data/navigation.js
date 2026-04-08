@@ -1,9 +1,9 @@
 export const NAV_LINKS = [
-  { label: 'Produits', href: '#produits' },
-  { label: 'Clients', href: '#clients' },
-  { label: 'Chauffeurs', href: '#chauffeurs' },
-  { label: 'Flottes', href: '#flottes' },
-  { label: 'FAQ', href: '#entreprise' },
+  { label: 'Produits',   section: 'produits' },
+  { label: 'Clients',    section: 'clients' },
+  { label: 'Chauffeurs', section: 'chauffeurs' },
+  { label: 'Flottes',    section: 'flottes' },
+  { label: 'FAQ',        section: 'entreprise' },
 ];
 
 export const FOOTER_SECTIONS = [
