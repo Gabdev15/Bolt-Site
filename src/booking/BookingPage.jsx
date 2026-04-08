@@ -16,12 +16,20 @@ export default function BookingPage({ onClose, user, onSignIn }) {
   const [time, setTime]       = useState('18:00');
   const [hours, setHours]     = useState(1);
 
-  const maxHours = time >= '21:00' ? 2 : 4;
+  const maxHours = time >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
+
+  const timeOptions = (() => {
+    const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
+    const [maxH] = BOOKING_PAGE.timeMax.split(':').map(Number);
+    const opts = [];
+    for (let h = minH; h <= maxH; h++) opts.push(`${String(h).padStart(2, '0')}:00`);
+    return opts;
+  })();
 
   const handleTimeChange = (e) => {
     const newTime = e.target.value;
     setTime(newTime);
-    const max = newTime >= '21:00' ? 2 : 4;
+    const max = newTime >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
     setHours(h => Math.min(h, max));
   };
   const [vehicle, setVehicle] = useState(null);
@@ -130,15 +138,16 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                   <label htmlFor="booking-time" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
                     <Clock size={11} />Heure
                   </label>
-                  <input
+                  <select
                     id="booking-time"
-                    type="time"
                     value={time}
-                    min="18:00"
-                    max="21:00"
                     onChange={handleTimeChange}
-                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
-                  />
+                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition appearance-none cursor-pointer"
+                  >
+                    {timeOptions.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
