@@ -27,9 +27,12 @@ export default function BookingPage({ onClose, user, onSignIn }) {
   })();
 
   const handleTimeChange = (e) => {
-    const newTime = e.target.value;
-    setTime(newTime);
-    const max = newTime >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
+    const raw = e.target.value;
+    const clamped = raw < BOOKING_PAGE.timeMin ? BOOKING_PAGE.timeMin
+                  : raw > BOOKING_PAGE.timeMax ? BOOKING_PAGE.timeMax
+                  : raw;
+    setTime(clamped);
+    const max = clamped >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
     setHours(h => Math.min(h, max));
   };
   const [vehicle, setVehicle] = useState(null);
@@ -158,6 +161,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       type="button"
                       onClick={() => setHours(h => Math.max(1, h - 1))}
                       disabled={hours <= 1}
+                      aria-label={`Réduire la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
                       className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
                     >−</button>
                     <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
@@ -165,6 +169,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       type="button"
                       onClick={() => setHours(h => Math.min(maxHours, h + 1))}
                       disabled={hours >= maxHours}
+                      aria-label={`Augmenter la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
                       className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
                     >+</button>
                   </div>
