@@ -162,7 +162,8 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       onClick={() => setHours(h => Math.max(1, h - 1))}
                       disabled={hours <= 1}
                       aria-label={`Réduire la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
-                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
+                      style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
+                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
                     >−</button>
                     <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
                     <button
@@ -170,7 +171,8 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       onClick={() => setHours(h => Math.min(maxHours, h + 1))}
                       disabled={hours >= maxHours}
                       aria-label={`Augmenter la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
-                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm select-none"
+                      style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
+                      className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
                     >+</button>
                   </div>
                 </div>
