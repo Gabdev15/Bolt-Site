@@ -186,7 +186,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     <p className="font-bold text-bolt-dark">{v.name}</p>
                     {v.locked
                       ? <p className="text-gray-400 text-xs font-medium mt-1">Prochainement disponible</p>
-                      : <p className="text-bolt-green font-bold mt-1">${v.price}</p>
+                      : <p className="text-bolt-green font-bold mt-1">${v.price}<span className="text-xs font-normal">{BOOKING_PAGE.perHour}</span></p>
                     }
                   </button>
                 ))}

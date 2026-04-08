@@ -110,6 +110,7 @@ export const BOOKING_PAGE = {
   labelDuration: 'Durée',
   hourSingular: 'heure',
   hourPlural: 'heures',
+  perHour: '/h',
   loginPromptTitle: 'Connectez-vous pour continuer',
   loginPromptSubtitle: 'Créez un compte Bolt pour réserver votre véhicule.',
   loginCta: 'Se connecter avec Bolt',
