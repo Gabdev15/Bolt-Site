@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Clock, Timer, User, Phone, Lock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Timer, Minus, Plus, User, Phone, Lock } from 'lucide-react';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
 import { BOOKING_PAGE } from '../data/content';
@@ -164,7 +164,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       aria-label={`Réduire la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
                       style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
                       className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
-                    >−</button>
+                    ><Minus size={14} strokeWidth={2.5} /></button>
                     <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
                     <button
                       type="button"
@@ -173,7 +173,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                       aria-label={`Augmenter la durée, actuellement ${hours} ${hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}`}
                       style={{ transition: 'transform 130ms cubic-bezier(0.23, 1, 0.32, 1), border-color 130ms ease, color 130ms ease, background-color 130ms ease, box-shadow 130ms ease' }}
                       className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-base text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 hover:shadow-md active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
-                    >+</button>
+                    ><Plus size={14} strokeWidth={2.5} /></button>
                   </div>
                 </div>
               </div>
