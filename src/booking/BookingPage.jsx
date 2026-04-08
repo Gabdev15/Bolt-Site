@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Clock, User, Phone, Lock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Timer, User, Phone, Lock } from 'lucide-react';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
 import { BOOKING_PAGE } from '../data/content';
@@ -104,40 +104,48 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                 <span className="w-8 h-8 rounded-full bg-bolt-green text-white flex items-center justify-center font-bold text-sm">1</span>
                 <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.dateTime}</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xs">
-                <div className="min-w-0">
-                  <label htmlFor="booking-date" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <Calendar size={12} className="inline mr-1" />Date
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                  <label htmlFor="booking-date" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Calendar size={11} />Date
                   </label>
                   <input
                     id="booking-date"
                     type="date"
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
-                <div className="min-w-0">
-                  <label htmlFor="booking-time" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <Clock size={12} className="inline mr-1" />Heure
+                <div>
+                  <label htmlFor="booking-time" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Clock size={11} />Heure
                   </label>
                   <input
                     id="booking-time"
                     type="time"
                     value={time}
                     onChange={e => setTime(e.target.value)}
-                    className="w-full min-w-0 max-w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
+                    className="w-full block border border-gray-200 rounded-2xl px-4 py-3.5 text-base text-bolt-dark bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-bolt-green/20 focus:border-bolt-green transition"
                   />
                 </div>
-              </div>
-              <div className="mt-4 max-w-xs">
-                <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                  <Clock size={12} className="inline mr-1" />{BOOKING_PAGE.labelDuration}
-                </label>
-                <div className="flex items-center gap-4 border border-gray-200 rounded-2xl px-4 py-3 bg-gray-50">
-                  <button type="button" onClick={() => setHours(h => Math.max(1, h - 1))} className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-lg hover:border-bolt-green hover:text-bolt-green transition">−</button>
-                  <span className="flex-1 text-center font-bold text-bolt-dark">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
-                  <button type="button" onClick={() => setHours(h => Math.min(24, h + 1))} className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-lg hover:border-bolt-green hover:text-bolt-green transition">+</button>
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-gray-400 mb-2">
+                    <Timer size={11} />{BOOKING_PAGE.labelDuration}
+                  </label>
+                  <div className="flex items-center justify-between border border-gray-200 rounded-2xl px-4 py-3.5 bg-gray-50 hover:border-gray-300 transition">
+                    <button
+                      type="button"
+                      onClick={() => setHours(h => Math.max(1, h - 1))}
+                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 transition shadow-sm select-none"
+                    >−</button>
+                    <span className="font-bold text-bolt-dark tabular-nums">{hours} {hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}</span>
+                    <button
+                      type="button"
+                      onClick={() => setHours(h => Math.min(24, h + 1))}
+                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-base hover:border-bolt-green hover:text-bolt-green active:scale-95 transition shadow-sm select-none"
+                    >+</button>
+                  </div>
                 </div>
               </div>
             </section>
