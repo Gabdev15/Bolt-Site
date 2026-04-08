@@ -16,7 +16,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
   const [time, setTime]       = useState('18:00');
   const [hours, setHours]     = useState(1);
 
-  const maxHours = time >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
+  const maxHours = BOOKING_PAGE.durationLimits[time] ?? 1;
 
   const timeOptions = (() => {
     const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
@@ -32,7 +32,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                   : raw > BOOKING_PAGE.timeMax ? BOOKING_PAGE.timeMax
                   : raw;
     setTime(clamped);
-    const max = clamped >= BOOKING_PAGE.durationMaxLateFrom ? BOOKING_PAGE.durationMaxLate : BOOKING_PAGE.durationMax;
+    const max = BOOKING_PAGE.durationLimits[clamped] ?? 1;
     setHours(h => Math.min(h, max));
   };
   const [vehicle, setVehicle] = useState(null);
