@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Clock, Timer, Minus, Plus, User, Phone, Lock } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
 import { BOOKING_PAGE } from '../data/content';
+import { db } from '../lib/firebase';
 
 export default function BookingPage({ onClose, user, onSignIn }) {
   const [closing, setClosing] = useState(false);
@@ -79,11 +81,29 @@ export default function BookingPage({ onClose, user, onSignIn }) {
 
   const [paying, setPaying] = useState(false);
 
-  const handleConfirm = (e) => {
+  const handleConfirm = async (e) => {
     e.preventDefault();
     const parsedAge = parseInt(driver.age, 10);
     if (!canConfirm || paying || isNaN(parsedAge) || parsedAge < 18) return;
     setPaying('shrinking');
+    try {
+      await addDoc(collection(db, 'orders'), {
+        userId: user.uid,
+        userEmail: user.email,
+        date,
+        time,
+        hours,
+        vehicle,
+        vehicleName: selectedVehicle.name,
+        vehiclePrice: selectedVehicle.price,
+        totalPrice: selectedVehicle.price * hours,
+        driver: { ...driver, age: parsedAge },
+        status: 'pending',
+        createdAt: serverTimestamp(),
+      });
+    } catch (_) {
+      // Silent fail — booking animation still proceeds
+    }
     setTimeout(() => setPaying('success'), 500);
     setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
   };

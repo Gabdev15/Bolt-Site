@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LayoutDashboard } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { BOLT_LOGO_WHITE, FR_FLAG } from '../../data/assets';
 import { NAV_LINKS } from '../../data/navigation';
 import { AUTH_LABELS } from '../../data/auth';
 
-const Navbar = ({ onSignIn, onDashboard, user }) => {
+const Navbar = ({ onSignIn, onDashboard, onAdmin, isAdmin, user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -47,6 +47,12 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
                 {user ? (
                   <div className="flex items-center gap-3">
                     <span className="text-white font-bold text-sm">{user.displayName || user.email}</span>
+                    {isAdmin && (
+                      <button type="button" onClick={onAdmin} className="flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-white/20 transition border border-white/20">
+                        <LayoutDashboard size={14} />
+                        Admin
+                      </button>
+                    )}
                     <button type="button" onClick={onDashboard} className="bg-bolt-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-[#29a366] transition shadow-sm">
                       {AUTH_LABELS.driveCta}
                     </button>
@@ -92,6 +98,12 @@ const Navbar = ({ onSignIn, onDashboard, user }) => {
                 {user ? (
                   <div className="space-y-3">
                     <p className="text-white font-bold text-lg">{user.displayName || user.email}</p>
+                    {isAdmin && (
+                      <button type="button" onClick={() => { onAdmin(); setIsOpen(false); }} className="w-full flex items-center justify-center gap-2 bg-white/10 text-white px-6 py-4 rounded-full font-bold text-lg border border-white/20">
+                        <LayoutDashboard size={18} />
+                        Admin
+                      </button>
+                    )}
                     <button type="button" onClick={() => { onDashboard(); setIsOpen(false); }} className="w-full bg-bolt-green text-white px-6 py-4 rounded-full font-bold text-lg">
                       {AUTH_LABELS.driveCta}
                     </button>
