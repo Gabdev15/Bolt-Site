@@ -6,6 +6,7 @@ import {
 import { collection, onSnapshot, query, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
+import { VEHICLES } from '../data/vehicles';
 
 const STATUS_LABELS = {
   pending:   'En attente',
@@ -19,12 +20,8 @@ const STATUS_STYLES = {
   cancelled: 'bg-red-100 text-red-600',
 };
 
-const VEHICLE_LABELS = {
-  prius:  'Toyota Prius',
-  leaf:   'Nissan Leaf',
-  civic:  'Honda Civic',
-  lexus:  'Lexus ES',
-};
+// Construit depuis vehicles.js — source unique de vérité
+const VEHICLE_LABELS = Object.fromEntries(VEHICLES.map(v => [v.id, v.name]));
 
 function StatCard({ icon: Icon, label, value, accent }) {
   return (
