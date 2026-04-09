@@ -101,8 +101,8 @@ export default function BookingPage({ onClose, user, onSignIn }) {
         status: 'pending',
         createdAt: serverTimestamp(),
       });
-    } catch (_) {
-      // Silent fail — booking animation still proceeds
+    } catch (err) {
+      console.error('Firestore write error:', err.code, err.message);
     }
     setTimeout(() => setPaying('success'), 500);
     setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);

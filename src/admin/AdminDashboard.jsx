@@ -3,7 +3,7 @@ import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   DollarSign, ChevronDown, ChevronUp, X, LayoutDashboard
 } from 'lucide-react';
-import { collection, onSnapshot, orderBy, query, updateDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 
@@ -141,17 +141,24 @@ const SORT_FIELDS = ['createdAt', 'date', 'totalPrice', 'status'];
 export default function AdminDashboard({ onBack }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [sortField, setSortField] = useState('createdAt');
   const [sortAsc, setSortAsc] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+    // Sans orderBy côté Firestore — tri fait côté client pour éviter l'erreur d'index manquant
+    const q = query(collection(db, 'orders'));
     const unsub = onSnapshot(q, (snap) => {
       setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       setLoading(false);
-    }, () => setLoading(false));
+      setError(null);
+    }, (err) => {
+      console.error('Firestore onSnapshot error:', err);
+      setError(err);
+      setLoading(false);
+    });
     return () => unsub();
   }, []);
 
@@ -266,6 +273,21 @@ export default function AdminDashboard({ onBack }) {
                 <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
               </svg>
               Chargement...
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 px-6">
+              <XCircle size={40} className="mx-auto mb-3 text-red-400" />
+              <p className="font-bold text-bolt-dark mb-2">Erreur de connexion à Firestore</p>
+              <p className="text-sm text-gray-500 mb-4">
+                {error.code === 'permission-denied'
+                  ? 'Accès refusé par les règles de sécurité Firestore. Activez le mode test dans la console Firebase.'
+                  : error.code === 'unavailable' || error.code === 'not-found'
+                  ? 'Firestore n\'est pas activé sur ce projet. Allez dans Firebase Console → Firestore Database → Créer une base de données.'
+                  : `Code d'erreur : ${error.code}`}
+              </p>
+              <code className="text-xs text-red-500 bg-red-50 px-3 py-1.5 rounded-lg block max-w-md mx-auto break-all">
+                {error.message}
+              </code>
             </div>
           ) : sorted.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
