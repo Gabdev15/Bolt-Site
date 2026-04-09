@@ -44,34 +44,36 @@ function AppContent() {
 
   const handleBooking = () => setShowBooking(true);
 
-  if (currentPage === 'admin' && isAdmin) {
-    return <AdminDashboard onBack={() => setCurrentPage('home')} />;
-  }
-
   return (
-    <div className="min-h-screen bg-white font-sans text-bolt-dark selection:bg-bolt-green selection:text-white">
+    <>
       <RPBanner />
-      {showSignIn  && <SignInModal onClose={() => setShowSignIn(false)} />}
-      {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} onSignIn={() => setShowSignIn(true)} />}
-      <Navbar
-        onSignIn={() => setShowSignIn(true)}
-        onDashboard={handleBooking}
-        onAdmin={() => setCurrentPage('admin')}
-        isAdmin={isAdmin}
-        user={user}
-      />
-      <main>
-        <Hero onStartDriving={handleBooking} />
-        <Features />
-        <HowItWorks onStartDriving={handleBooking} />
-        <Testimonial />
-        <VehicleTypes />
-        <PricingTabs onStartDriving={handleBooking} />
-        <CitySection onStartDriving={handleBooking} />
-        <FAQ />
-      </main>
-      <Footer />
-    </div>
+      {currentPage === 'admin' && isAdmin ? (
+        <AdminDashboard onBack={() => setCurrentPage('home')} />
+      ) : (
+        <div className="min-h-screen bg-white font-sans text-bolt-dark selection:bg-bolt-green selection:text-white">
+          {showSignIn  && <SignInModal onClose={() => setShowSignIn(false)} />}
+          {showBooking && <BookingPage user={user} onClose={() => setShowBooking(false)} onSignIn={() => setShowSignIn(true)} />}
+          <Navbar
+            onSignIn={() => setShowSignIn(true)}
+            onDashboard={handleBooking}
+            onAdmin={() => setCurrentPage('admin')}
+            isAdmin={isAdmin}
+            user={user}
+          />
+          <main>
+            <Hero onStartDriving={handleBooking} />
+            <Features />
+            <HowItWorks onStartDriving={handleBooking} />
+            <Testimonial />
+            <VehicleTypes />
+            <PricingTabs onStartDriving={handleBooking} />
+            <CitySection onStartDriving={handleBooking} />
+            <FAQ />
+          </main>
+          <Footer />
+        </div>
+      )}
+    </>
   );
 }
 
