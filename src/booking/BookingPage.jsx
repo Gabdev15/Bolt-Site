@@ -101,11 +101,12 @@ export default function BookingPage({ onClose, user, onSignIn }) {
         status: 'pending',
         createdAt: serverTimestamp(),
       });
+      setTimeout(() => setPaying('success'), 500);
+      setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
     } catch (err) {
       console.error('Firestore write error:', err.code, err.message);
+      setPaying(false);
     }
-    setTimeout(() => setPaying('success'), 500);
-    setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
   };
 
   if (confirmed) {

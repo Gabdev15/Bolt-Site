@@ -50,13 +50,16 @@ function OrderDetailModal({ order, onClose, onStatusChange }) {
 
   const changeStatus = async (newStatus) => {
     setLoading(true);
-    await onStatusChange(order.id, newStatus);
-    setLoading(false);
+    try {
+      await onStatusChange(order.id, newStatus);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (d) => {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(`${d}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
   return (
@@ -133,8 +136,6 @@ function Row({ label, value }) {
   );
 }
 
-const SORT_FIELDS = ['createdAt', 'date', 'totalPrice', 'status'];
-
 export default function AdminDashboard({ onBack }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -160,8 +161,12 @@ export default function AdminDashboard({ onBack }) {
   }, []);
 
   const handleStatusChange = async (orderId, newStatus) => {
-    await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
-    setSelected(prev => prev ? { ...prev, status: newStatus } : null);
+    try {
+      await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
+      setSelected(prev => prev ? { ...prev, status: newStatus } : null);
+    } catch (err) {
+      console.error('Erreur mise à jour statut:', err);
+    }
   };
 
   const toggleSort = (field) => {
@@ -199,7 +204,7 @@ export default function AdminDashboard({ onBack }) {
 
   const formatDate = (d) => {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return new Date(`${d}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
   };
 
   const formatCreatedAt = (ts) => {
