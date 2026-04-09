@@ -336,9 +336,9 @@ export default function AdminDashboard({ onBack }) {
               <div
                 className="absolute inset-y-1 rounded-lg bg-white shadow-sm pointer-events-none"
                 style={{
-                  width: `${100 / FILTERS.length}%`,
-                  transform: `translateX(${FILTERS.findIndex(f => f.key === filterStatus) * 100}%)`,
-                  transition: 'transform 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  width: `calc((100% - 8px) / ${FILTERS.length})`,
+                  left: `calc(4px + ${FILTERS.findIndex(f => f.key === filterStatus)} * ((100% - 8px) / ${FILTERS.length}))`,
+                  transition: 'left 200ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               />
               {FILTERS.map(({ key, label }) => (
