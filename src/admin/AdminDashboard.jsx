@@ -36,7 +36,10 @@ const STAT_CONFIG = [
 ];
 
 // Construit depuis vehicles.js — source unique de vérité
-const VEHICLE_LABELS = Object.fromEntries(VEHICLES.map(v => [v.id, v.name]));
+const VEHICLE_LABELS   = Object.fromEntries(VEHICLES.map(v => [v.id, v.name]));
+
+// Padding du container du slider (correspond à la classe Tailwind p-1 = 4 px)
+const SLIDER_PAD = 4;
 const VEHICLE_CATEGORY = Object.fromEntries(VEHICLES.map(v => [v.id, v.category]));
 
 function initials(firstName, lastName) {
@@ -336,8 +339,8 @@ export default function AdminDashboard({ onBack }) {
               <div
                 className="absolute inset-y-1 rounded-lg bg-white shadow-sm pointer-events-none"
                 style={{
-                  width: `calc((100% - 8px) / ${FILTERS.length})`,
-                  left: `calc(4px + ${FILTERS.findIndex(f => f.key === filterStatus)} * ((100% - 8px) / ${FILTERS.length}))`,
+                  width: `calc((100% - ${SLIDER_PAD * 2}px) / ${FILTERS.length})`,
+                  left: `calc(${SLIDER_PAD}px + ${FILTERS.findIndex(f => f.key === filterStatus)} * ((100% - ${SLIDER_PAD * 2}px) / ${FILTERS.length}))`,
                   transition: 'left 200ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               />
