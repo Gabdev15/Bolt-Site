@@ -324,21 +324,34 @@ export default function AdminDashboard({ onBack }) {
 
           {/* Toolbar */}
           <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-bold text-bolt-dark text-sm">Commandes</h2>
-            <div className="flex gap-1.5 flex-wrap">
+            <h2 className="font-bold text-bolt-dark text-sm">
+              Commandes <span className="text-gray-400 font-normal">({filtered.length})</span>
+            </h2>
+            {/* Segmented slider */}
+            <div
+              className="relative bg-gray-100 rounded-xl p-1 grid"
+              style={{ gridTemplateColumns: `repeat(${FILTERS.length}, 1fr)` }}
+            >
+              {/* Sliding indicator */}
+              <div
+                className="absolute inset-y-1 rounded-lg bg-white shadow-sm pointer-events-none"
+                style={{
+                  width: `${100 / FILTERS.length}%`,
+                  transform: `translateX(${FILTERS.findIndex(f => f.key === filterStatus) * 100}%)`,
+                  transition: 'transform 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              />
               {FILTERS.map(({ key, label }) => (
                 <button
                   key={key}
                   onClick={() => setFilterStatus(key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    filterStatus === key
-                      ? 'bg-bolt-dark text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  className={`relative z-10 flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-semibold whitespace-nowrap transition-colors duration-150 ${
+                    filterStatus === key ? 'text-bolt-dark' : 'text-gray-400 hover:text-gray-600'
                   }`}
                 >
                   {label}
-                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                    filterStatus === key ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-500'
+                  <span className={`text-[10px] font-bold transition-colors duration-150 ${
+                    filterStatus === key ? 'text-bolt-green' : 'text-gray-400'
                   }`}>
                     {counts[key]}
                   </span>
