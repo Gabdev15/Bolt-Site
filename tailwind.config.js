@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         'bolt-green': '#32BB78',
+        'bolt-green-dark': '#29a366',
         'bolt-dark': '#2F313F',
         'bolt-gray': '#F5F6F7',
       },
