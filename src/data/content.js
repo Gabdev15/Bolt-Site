@@ -32,6 +32,7 @@ export const FEATURES = {
 };
 
 export const HOW_IT_WORKS = {
+  eyebrow: 'Comment ça marche',
   title: 'Commencer à conduire',
   subtitle: 'Louez une voiture plus rapidement que trouver une place de parking.',
   cta: 'Commencer à conduire',
