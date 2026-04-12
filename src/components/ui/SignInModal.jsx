@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../../lib/firebase';
 import { AUTH_ERROR_MESSAGES, AUTH_LABELS } from '../../data/auth';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -86,6 +87,12 @@ const SignInModal = ({ onClose }) => {
         mode === 'signup'
           ? createUserWithEmailAndPassword(auth, email, password).then(async (uc) => {
               await updateProfile(uc.user, { displayName: name });
+              await setDoc(doc(db, 'users', uc.user.uid), {
+                uid: uc.user.uid,
+                email: uc.user.email,
+                displayName: name,
+                createdAt: serverTimestamp(),
+              });
             })
           : signInWithEmailAndPassword(auth, email, password),
         new Promise((r) => setTimeout(r, 2000)),
