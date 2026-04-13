@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X, LayoutDashboard } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
-import { BOLT_LOGO_WHITE, FR_FLAG } from '../../data/assets';
+import { BOLT_LOGO_WHITE, FR_FLAG as EN_FLAG } from '../../data/assets';
 import { NAV_LINKS } from '../../data/navigation';
 import { AUTH_LABELS } from '../../data/auth';
 
@@ -41,8 +41,8 @@ const Navbar = ({ onSignIn, onDashboard, onAdmin, isAdmin, user }) => {
               </div>
               <div className="flex items-center space-x-6">
                 <button type="button" className="flex items-center text-sm font-bold bg-white/10 text-white px-4 py-2 rounded-full hover:bg-white/20 transition backdrop-blur-sm">
-                  <img src={FR_FLAG} alt="FR" className="w-5 h-auto mr-2 rounded-sm" />
-                  <span>FR</span>
+                  <img src={EN_FLAG} alt="EN" className="w-5 h-auto mr-2 rounded-sm" />
+                  <span>EN</span>
                 </button>
                 {user ? (
                   <div className="flex items-center gap-3">
