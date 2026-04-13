@@ -26,7 +26,7 @@ export const FOOTER_SECTIONS = [
 ];
 
 export const RP_DISCLAIMER = {
-  pre:       "⚠️ Ce site est un projet ",
+  pre:       "Ce site est un projet ",
   highlight: "RP uniquement",
   post:      " — il ne représente pas le vrai site de l'entreprise Bolt et n'y est pas affilié.",
 };
