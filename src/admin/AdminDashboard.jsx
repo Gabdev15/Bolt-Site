@@ -183,10 +183,10 @@ function InfoRow({ icon: Icon, label, value }) {
   );
 }
 
-function UsersSection({ orders, users: rawUsers }) {
+function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
   const [search, setSearch] = useState('');
 
-  // Compte des commandes par userId
+  // Compte des commandes par userId ou email
   const orderCountByUser = orders.reduce((acc, o) => {
     const key = o.userId || o.userEmail;
     if (!key) return acc;
@@ -195,20 +195,44 @@ function UsersSection({ orders, users: rawUsers }) {
   }, {});
 
   // Base = collection Firestore "users", enrichie avec le compte de commandes
-  const users = rawUsers
-    .map(u => ({
-      key: u.uid || u.email,
+  // + fusion des identités présentes uniquement dans les commandes
+  const usersMap = new Map();
+
+  rawUsers.forEach(u => {
+    const key = u.uid || u.email;
+    if (!key) return;
+    usersMap.set(key, {
+      key,
       email: u.email ?? '—',
       firstName: u.displayName?.split(' ')[0] ?? '',
       lastName: u.displayName?.split(' ').slice(1).join(' ') ?? '',
       createdAt: u.createdAt,
       count: orderCountByUser[u.uid] ?? orderCountByUser[u.email] ?? 0,
-    }))
-    .sort((a, b) => {
-      const ta = a.createdAt?.seconds ?? 0;
-      const tb = b.createdAt?.seconds ?? 0;
-      return tb - ta;
     });
+  });
+
+  orders.forEach(o => {
+    const key = o.userId || o.userEmail;
+    if (!key || usersMap.has(key)) return;
+    const ts = typeof o.createdAt?.seconds === 'number' ? o.createdAt.seconds : null;
+    const existing = usersMap.get(key);
+    if (!existing) {
+      usersMap.set(key, {
+        key,
+        email: o.userEmail ?? '—',
+        firstName: o.driver?.firstName ?? '',
+        lastName: o.driver?.lastName ?? '',
+        createdAt: ts !== null ? { seconds: ts } : null,
+        count: orderCountByUser[key] ?? 0,
+      });
+    }
+  });
+
+  const users = Array.from(usersMap.values()).sort((a, b) => {
+    const ta = a.createdAt?.seconds ?? 0;
+    const tb = b.createdAt?.seconds ?? 0;
+    return tb - ta;
+  });
 
   const formatDate = (seconds) => {
     if (!seconds || seconds === Infinity) return '—';
@@ -239,7 +263,30 @@ function UsersSection({ orders, users: rawUsers }) {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {filtered.length === 0 ? (
+        {usersLoading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-300">
+            <svg className="animate-spin" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            <span className="text-sm">Chargement…</span>
+          </div>
+        ) : usersError ? (
+          <div className="text-center py-16 px-6">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+              <XCircle size={28} className="text-red-400" />
+            </div>
+            <p className="font-bold text-bolt-dark mb-1">Erreur Firestore</p>
+            <p className="text-sm text-gray-500 mb-4 max-w-sm mx-auto">
+              {usersError.code === 'permission-denied'
+                ? 'Accès refusé. Mettez à jour les règles de sécurité Firestore.'
+                : `Code d'erreur : ${usersError.code}`}
+            </p>
+            <code className="text-xs text-red-400 bg-red-50 px-3 py-2 rounded-xl block max-w-md mx-auto break-all">
+              {usersError.message}
+            </code>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
               <Users size={24} className="text-gray-300" />
@@ -306,6 +353,8 @@ export default function AdminDashboard({ onBack }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [sortField, setSortField] = useState('createdAt');
   const [sortAsc, setSortAsc] = useState(false);
@@ -328,8 +377,12 @@ export default function AdminDashboard({ onBack }) {
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'users'), (snap) => {
       setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setUsersLoading(false);
+      setUsersError(null);
     }, (err) => {
       console.error('Firestore users error:', err);
+      setUsersError(err);
+      setUsersLoading(false);
     });
     return () => unsub();
   }, []);
@@ -461,7 +514,7 @@ export default function AdminDashboard({ onBack }) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {activeTab === 'users' ? (
-          <UsersSection orders={orders} users={users} />
+          <UsersSection orders={orders} users={users} usersLoading={usersLoading} usersError={usersError} />
         ) : (<>
 
         {/* Page title */}
