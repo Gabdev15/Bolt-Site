@@ -108,6 +108,7 @@ export const BOOKING_PAGE = {
   confirmationVehiclePrefix: 'Votre',
   confirmationVehicleSuffix: 'vous attend. Paiement sur place.',
   confirmButtonLabel: 'Confirmer la réservation',
+  confirmingLabel: 'Réservation confirmée',
   timeMin: '18:00',
   timeMax: '21:00',
   durationLimits: {
@@ -131,11 +132,42 @@ export const BOOKING_PAGE = {
     vehicle: 'Véhicule',
     driver: 'Conducteur',
   },
+  labels: {
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    age: 'Âge',
+    phone: 'Téléphone',
+    location: 'Lieu',
+    date: 'Date',
+    time: 'Heure',
+    vehicle: 'Véhicule',
+  },
+  locked: 'Prochainement',
+  lockedDesc: 'Prochainement disponible',
   placeholders: {
     firstName: 'John',
     lastName: 'Doe',
     age: '25',
     phone: '06 12 34 56 78',
+  },
+};
+
+export const ADMIN = {
+  users: {
+    title: 'Utilisateurs inscrits',
+    countSingular: 'utilisateur au total',
+    countPlural: 'utilisateurs au total',
+    searchPlaceholder: 'Rechercher un utilisateur…',
+    noResults: 'Aucun résultat',
+    empty: 'Aucun utilisateur trouvé',
+    columns: {
+      user: 'Utilisateur',
+      email: 'Email',
+      registeredAt: 'Inscrit le',
+      orders: 'Commandes',
+    },
+    orderSingular: 'commande',
+    orderPlural: 'commandes',
   },
 };
 

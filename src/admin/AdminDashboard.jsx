@@ -8,6 +8,7 @@ import { collection, onSnapshot, query, updateDoc, doc } from 'firebase/firestor
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
+import { ADMIN } from '../data/content';
 
 const STATUS_LABELS = {
   pending:   'En attente',
@@ -182,40 +183,35 @@ function InfoRow({ icon: Icon, label, value }) {
   );
 }
 
-function UsersSection({ orders }) {
+function UsersSection({ orders, users: rawUsers }) {
   const [search, setSearch] = useState('');
 
-  // Dérive les utilisateurs uniques depuis les commandes existantes
-  const users = Object.values(
-    orders.reduce((acc, o) => {
-      const key = o.userId || o.userEmail;
-      if (!key) return acc;
-      if (!acc[key]) {
-        acc[key] = {
-          key,
-          email: o.userEmail ?? '—',
-          firstName: o.driver?.firstName ?? '',
-          lastName: o.driver?.lastName ?? '',
-          firstOrderAt: Infinity,
-          count: 0,
-        };
-      }
-      acc[key].count += 1;
-      // Garde la date de la première commande
-      const ts = (typeof o.createdAt?.seconds === 'number' && o.createdAt.seconds > 0) ? o.createdAt.seconds : null;
-      if (ts !== null && ts < acc[key].firstOrderAt) acc[key].firstOrderAt = ts;
-      return acc;
-    }, {})
-  ).sort((a, b) => {
-    // Treat Infinity as very recent (sort to end when sorting by most recent first)
-    if (a.firstOrderAt === Infinity && b.firstOrderAt === Infinity) return 0;
-    if (a.firstOrderAt === Infinity) return 1;
-    if (b.firstOrderAt === Infinity) return -1;
-    return b.firstOrderAt - a.firstOrderAt;
-  });
+  // Compte des commandes par userId
+  const orderCountByUser = orders.reduce((acc, o) => {
+    const key = o.userId || o.userEmail;
+    if (!key) return acc;
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  // Base = collection Firestore "users", enrichie avec le compte de commandes
+  const users = rawUsers
+    .map(u => ({
+      key: u.uid || u.email,
+      email: u.email ?? '—',
+      firstName: u.displayName?.split(' ')[0] ?? '',
+      lastName: u.displayName?.split(' ').slice(1).join(' ') ?? '',
+      createdAt: u.createdAt,
+      count: orderCountByUser[u.uid] ?? orderCountByUser[u.email] ?? 0,
+    }))
+    .sort((a, b) => {
+      const ta = a.createdAt?.seconds ?? 0;
+      const tb = b.createdAt?.seconds ?? 0;
+      return tb - ta;
+    });
 
   const formatDate = (seconds) => {
-    if (!seconds) return '—';
+    if (!seconds || seconds === Infinity) return '—';
     return new Date(seconds * 1000).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
   };
 
@@ -230,13 +226,13 @@ function UsersSection({ orders }) {
       {/* Header + search */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-xl font-bold text-bolt-dark">Utilisateurs inscrits</h2>
-          <p className="text-sm text-gray-400 mt-0.5">{users.length} utilisateur{users.length !== 1 ? 's' : ''} au total</p>
+          <h2 className="text-xl font-bold text-bolt-dark">{ADMIN.users.title}</h2>
+          <p className="text-sm text-gray-400 mt-0.5">{users.length} {users.length !== 1 ? ADMIN.users.countPlural : ADMIN.users.countSingular}</p>
         </div>
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Rechercher un utilisateur…"
+          placeholder={ADMIN.users.searchPlaceholder}
           className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-bolt-green w-64"
         />
       </div>
@@ -249,7 +245,7 @@ function UsersSection({ orders }) {
               <Users size={24} className="text-gray-300" />
             </div>
             <p className="text-sm font-medium text-gray-400">
-              {search ? 'Aucun résultat' : 'Aucun utilisateur trouvé'}
+              {search ? ADMIN.users.noResults : ADMIN.users.empty}
             </p>
           </div>
         ) : (
@@ -257,7 +253,7 @@ function UsersSection({ orders }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/60">
-                  {['Utilisateur', 'Email', 'Première commande', 'Commandes'].map(h => (
+                  {Object.values(ADMIN.users.columns).map(h => (
                     <th key={h} className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">{h}</th>
                   ))}
                 </tr>
@@ -281,15 +277,15 @@ function UsersSection({ orders }) {
                       {/* Email */}
                       <td className="px-4 py-3.5 text-gray-500 text-xs whitespace-nowrap">{u.email}</td>
 
-                      {/* Première commande */}
-                      <td className="px-4 py-3.5 text-gray-400 text-xs whitespace-nowrap">{formatDate(u.firstOrderAt)}</td>
+                      {/* Inscrit le */}
+                      <td className="px-4 py-3.5 text-gray-400 text-xs whitespace-nowrap">{formatDate(u.createdAt?.seconds)}</td>
 
                       {/* Commandes */}
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
                           u.count > 0 ? 'bg-bolt-green/10 text-bolt-green' : 'bg-gray-100 text-gray-400'
                         }`}>
-                          {u.count} commande{u.count !== 1 ? 's' : ''}
+                          {u.count} {u.count !== 1 ? ADMIN.users.orderPlural : ADMIN.users.orderSingular}
                         </span>
                       </td>
                     </tr>
@@ -307,6 +303,7 @@ function UsersSection({ orders }) {
 export default function AdminDashboard({ onBack }) {
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -324,6 +321,15 @@ export default function AdminDashboard({ onBack }) {
       console.error('Firestore onSnapshot error:', err);
       setError(err);
       setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => {
+      console.error('Firestore users error:', err);
     });
     return () => unsub();
   }, []);
@@ -455,7 +461,7 @@ export default function AdminDashboard({ onBack }) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {activeTab === 'users' ? (
-          <UsersSection orders={orders} />
+          <UsersSection orders={orders} users={users} />
         ) : (<>
 
         {/* Page title */}

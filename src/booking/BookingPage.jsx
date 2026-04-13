@@ -248,7 +248,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     {v.locked && (
                       <span className="absolute top-3 right-3 flex items-center gap-1 bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full">
                         <Lock size={9} />
-                        Prochainement
+                        {BOOKING_PAGE.locked}
                       </span>
                     )}
                     {!v.locked && vehicle === v.id && (
@@ -266,7 +266,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                     <p className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">{v.category}</p>
                     <p className="font-bold text-bolt-dark">{v.name}</p>
                     {v.locked
-                      ? <p className="text-gray-400 text-xs font-medium mt-1">Prochainement disponible</p>
+                      ? <p className="text-gray-400 text-xs font-medium mt-1">{BOOKING_PAGE.lockedDesc}</p>
                       : <p className="text-bolt-green font-bold mt-1">${v.price}<span className="text-xs font-normal">{BOOKING_PAGE.perHour}</span></p>
                     }
                   </button>
@@ -283,7 +283,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="driver-firstName" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <User size={12} className="inline mr-1" />Prénom
+                    <User size={12} className="inline mr-1" />{BOOKING_PAGE.labels.firstName}
                   </label>
                   <input
                     id="driver-firstName"
@@ -296,7 +296,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                 </div>
                 <div>
                   <label htmlFor="driver-lastName" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <User size={12} className="inline mr-1" />Nom
+                    <User size={12} className="inline mr-1" />{BOOKING_PAGE.labels.lastName}
                   </label>
                   <input
                     id="driver-lastName"
@@ -308,7 +308,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                   />
                 </div>
                 <div>
-                  <label htmlFor="driver-age" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">Âge</label>
+                  <label htmlFor="driver-age" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">{BOOKING_PAGE.labels.age}</label>
                   <input
                     id="driver-age"
                     type="number"
@@ -321,7 +321,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                 </div>
                 <div>
                   <label htmlFor="driver-phone" className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
-                    <Phone size={12} className="inline mr-1" />Téléphone
+                    <Phone size={12} className="inline mr-1" />{BOOKING_PAGE.labels.phone}
                   </label>
                   <input
                     id="driver-phone"
@@ -342,19 +342,19 @@ export default function BookingPage({ onClose, user, onSignIn }) {
               <h3 className="text-lg font-bold text-bolt-dark mb-5">{BOOKING_PAGE.summaryTitle}</h3>
               <div className="space-y-3 text-sm mb-5">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Lieu</span>
+                  <span className="text-gray-500">{BOOKING_PAGE.labels.location}</span>
                   <span className="font-medium text-bolt-dark">{BOOKING_PAGE.location}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Date</span>
+                  <span className="text-gray-500">{BOOKING_PAGE.labels.date}</span>
                   <span className="font-medium text-bolt-dark">{date || <span className="text-gray-300">Choisir une date</span>}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Heure</span>
+                  <span className="text-gray-500">{BOOKING_PAGE.labels.time}</span>
                   <span className="font-medium text-bolt-dark">{time}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Véhicule</span>
+                  <span className="text-gray-500">{BOOKING_PAGE.labels.vehicle}</span>
                   <span className="font-medium text-bolt-dark">{selectedVehicle?.name || <span className="text-gray-300">À choisir</span>}</span>
                 </div>
                 <div className="flex justify-between">
@@ -408,7 +408,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                               fill="none" strokeLinecap="round" strokeLinejoin="round"
                             />
                           </svg>
-                          Réservation confirmée
+                          {BOOKING_PAGE.confirmingLabel}
                         </span>
                       ) : paying === 'shrinking' ? (
                         <span className="flex items-center justify-center">
