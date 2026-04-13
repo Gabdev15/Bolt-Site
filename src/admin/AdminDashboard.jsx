@@ -196,17 +196,23 @@ function UsersSection({ orders }) {
           email: o.userEmail ?? '—',
           firstName: o.driver?.firstName ?? '',
           lastName: o.driver?.lastName ?? '',
-          firstOrderAt: o.createdAt?.seconds ?? 0,
+          firstOrderAt: Infinity,
           count: 0,
         };
       }
       acc[key].count += 1;
       // Garde la date de la première commande
-      const ts = o.createdAt?.seconds ?? 0;
-      if (ts < acc[key].firstOrderAt) acc[key].firstOrderAt = ts;
+      const ts = (typeof o.createdAt?.seconds === 'number' && o.createdAt.seconds > 0) ? o.createdAt.seconds : null;
+      if (ts !== null && ts < acc[key].firstOrderAt) acc[key].firstOrderAt = ts;
       return acc;
     }, {})
-  ).sort((a, b) => b.firstOrderAt - a.firstOrderAt);
+  ).sort((a, b) => {
+    // Treat Infinity as very recent (sort to end when sorting by most recent first)
+    if (a.firstOrderAt === Infinity && b.firstOrderAt === Infinity) return 0;
+    if (a.firstOrderAt === Infinity) return 1;
+    if (b.firstOrderAt === Infinity) return -1;
+    return b.firstOrderAt - a.firstOrderAt;
+  });
 
   const formatDate = (seconds) => {
     if (!seconds) return '—';
