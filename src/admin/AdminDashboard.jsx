@@ -206,7 +206,7 @@ function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
       email: u.email ?? '—',
       firstName: u.displayName?.split(' ')[0] ?? '',
       lastName: u.displayName?.split(' ').slice(1).join(' ') ?? '',
-      createdAt: u.createdAt,
+      registeredAt: u.createdAt ?? null,
       count: orderCountByUser[u.uid] ?? orderCountByUser[u.email] ?? 0,
     });
   });
@@ -214,23 +214,19 @@ function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
   orders.forEach(o => {
     const key = o.userId || o.userEmail;
     if (!key || usersMap.has(key)) return;
-    const ts = typeof o.createdAt?.seconds === 'number' ? o.createdAt.seconds : null;
-    const existing = usersMap.get(key);
-    if (!existing) {
-      usersMap.set(key, {
-        key,
-        email: o.userEmail ?? '—',
-        firstName: o.driver?.firstName ?? '',
-        lastName: o.driver?.lastName ?? '',
-        createdAt: ts !== null ? { seconds: ts } : null,
-        count: orderCountByUser[key] ?? 0,
-      });
-    }
+    usersMap.set(key, {
+      key,
+      email: o.userEmail ?? '—',
+      firstName: o.driver?.firstName ?? '',
+      lastName: o.driver?.lastName ?? '',
+      registeredAt: null,
+      count: orderCountByUser[key] ?? 0,
+    });
   });
 
   const users = Array.from(usersMap.values()).sort((a, b) => {
-    const ta = a.createdAt?.seconds ?? 0;
-    const tb = b.createdAt?.seconds ?? 0;
+    const ta = a.registeredAt?.seconds ?? 0;
+    const tb = b.registeredAt?.seconds ?? 0;
     return tb - ta;
   });
 
@@ -325,7 +321,7 @@ function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
                       <td className="px-4 py-3.5 text-gray-500 text-xs whitespace-nowrap">{u.email}</td>
 
                       {/* Inscrit le */}
-                      <td className="px-4 py-3.5 text-gray-400 text-xs whitespace-nowrap">{formatDate(u.createdAt?.seconds)}</td>
+                      <td className="px-4 py-3.5 text-gray-400 text-xs whitespace-nowrap">{formatDate(u.registeredAt?.seconds)}</td>
 
                       {/* Commandes */}
                       <td className="px-4 py-3.5">
