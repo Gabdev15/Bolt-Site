@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   DollarSign, ChevronDown, ChevronUp, X, LayoutDashboard,
-  Car, User, Phone, Mail, Calendar, Timer,
+  Car, User, Phone, Mail, Calendar, Timer, Users,
 } from 'lucide-react';
 import { collection, onSnapshot, query, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
+import { ADMIN } from '../data/content';
 
 const STATUS_LABELS = {
   pending:   'En attente',
@@ -182,10 +183,174 @@ function InfoRow({ icon: Icon, label, value }) {
   );
 }
 
+function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
+  const [search, setSearch] = useState('');
+
+  // Compte des commandes par userId ou email
+  const orderCountByUser = orders.reduce((acc, o) => {
+    const key = o.userId || o.userEmail;
+    if (!key) return acc;
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  // Base = collection Firestore "users", enrichie avec le compte de commandes
+  // + fusion des identités présentes uniquement dans les commandes
+  const usersMap = new Map();
+
+  rawUsers.forEach(u => {
+    const key = u.uid || u.email;
+    if (!key) return;
+    usersMap.set(key, {
+      key,
+      email: u.email ?? '—',
+      firstName: u.displayName?.split(' ')[0] ?? '',
+      lastName: u.displayName?.split(' ').slice(1).join(' ') ?? '',
+      registeredAt: u.createdAt ?? null,
+      count: orderCountByUser[u.uid] ?? orderCountByUser[u.email] ?? 0,
+    });
+  });
+
+  orders.forEach(o => {
+    const key = o.userId || o.userEmail;
+    if (!key || usersMap.has(key)) return;
+    usersMap.set(key, {
+      key,
+      email: o.userEmail ?? '—',
+      firstName: o.driver?.firstName ?? '',
+      lastName: o.driver?.lastName ?? '',
+      registeredAt: null,
+      count: orderCountByUser[key] ?? 0,
+    });
+  });
+
+  const users = Array.from(usersMap.values()).sort((a, b) => {
+    const ta = a.registeredAt?.seconds ?? 0;
+    const tb = b.registeredAt?.seconds ?? 0;
+    return tb - ta;
+  });
+
+  const formatDate = (seconds) => {
+    if (!seconds || seconds === Infinity) return '—';
+    return new Date(seconds * 1000).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  };
+
+  const filtered = users.filter(u =>
+    !search ||
+    `${u.firstName} ${u.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Header + search */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-xl font-bold text-bolt-dark">{ADMIN.users.title}</h2>
+          <p className="text-sm text-gray-400 mt-0.5">{users.length} {users.length !== 1 ? ADMIN.users.countPlural : ADMIN.users.countSingular}</p>
+        </div>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder={ADMIN.users.searchPlaceholder}
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-bolt-green w-64"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {usersLoading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-300">
+            <svg className="animate-spin" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            <span className="text-sm">Chargement…</span>
+          </div>
+        ) : usersError ? (
+          <div className="text-center py-16 px-6">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+              <XCircle size={28} className="text-red-400" />
+            </div>
+            <p className="font-bold text-bolt-dark mb-1">Erreur Firestore</p>
+            <p className="text-sm text-gray-500 mb-4 max-w-sm mx-auto">
+              {usersError.code === 'permission-denied'
+                ? 'Accès refusé. Mettez à jour les règles de sécurité Firestore.'
+                : `Code d'erreur : ${usersError.code}`}
+            </p>
+            <code className="text-xs text-red-400 bg-red-50 px-3 py-2 rounded-xl block max-w-md mx-auto break-all">
+              {usersError.message}
+            </code>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+              <Users size={24} className="text-gray-300" />
+            </div>
+            <p className="text-sm font-medium text-gray-400">
+              {search ? ADMIN.users.noResults : ADMIN.users.empty}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/60">
+                  {Object.values(ADMIN.users.columns).map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filtered.map(u => {
+                  const fullName = `${u.firstName} ${u.lastName}`.trim() || '—';
+                  const ini = ((u.firstName[0] ?? '') + (u.lastName[0] ?? '')).toUpperCase() || u.email[0]?.toUpperCase() || '?';
+                  return (
+                    <tr key={u.key} className="hover:bg-gray-50/80 transition">
+                      {/* Utilisateur */}
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-bolt-green/10 flex items-center justify-center shrink-0">
+                            <span className="text-[11px] font-bold text-bolt-green">{ini}</span>
+                          </div>
+                          <span className="font-medium text-bolt-dark text-xs whitespace-nowrap">{fullName}</span>
+                        </div>
+                      </td>
+
+                      {/* Email */}
+                      <td className="px-4 py-3.5 text-gray-500 text-xs whitespace-nowrap">{u.email}</td>
+
+                      {/* Inscrit le */}
+                      <td className="px-4 py-3.5 text-gray-400 text-xs whitespace-nowrap">{formatDate(u.registeredAt?.seconds)}</td>
+
+                      {/* Commandes */}
+                      <td className="px-4 py-3.5">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          u.count > 0 ? 'bg-bolt-green/10 text-bolt-green' : 'bg-gray-100 text-gray-400'
+                        }`}>
+                          {u.count} {u.count !== 1 ? ADMIN.users.orderPlural : ADMIN.users.orderSingular}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard({ onBack }) {
+  const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState(null);
   const [selected, setSelected] = useState(null);
   const [sortField, setSortField] = useState('createdAt');
   const [sortAsc, setSortAsc] = useState(false);
@@ -201,6 +366,19 @@ export default function AdminDashboard({ onBack }) {
       console.error('Firestore onSnapshot error:', err);
       setError(err);
       setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'users'), (snap) => {
+      setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setUsersLoading(false);
+      setUsersError(null);
+    }, (err) => {
+      console.error('Firestore users error:', err);
+      setUsersError(err);
+      setUsersLoading(false);
     });
     return () => unsub();
   }, []);
@@ -301,11 +479,39 @@ export default function AdminDashboard({ onBack }) {
               <span className="font-bold text-sm">Administration</span>
             </div>
           </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                activeTab === 'orders'
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <Package size={13} />
+              Commandes
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                activeTab === 'users'
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <Users size={13} />
+              Utilisateurs
+            </button>
+          </div>
           <img src={BOLT_LOGO_DARK} alt="Bolt" className="h-5 brightness-0 invert opacity-70" />
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+        {activeTab === 'users' ? (
+          <UsersSection orders={orders} users={users} usersLoading={usersLoading} usersError={usersError} />
+        ) : (<>
 
         {/* Page title */}
         <div className="flex items-end justify-between">
@@ -490,6 +696,7 @@ export default function AdminDashboard({ onBack }) {
             </div>
           )}
         </div>
+        </>)}
       </main>
 
       {selected && (
