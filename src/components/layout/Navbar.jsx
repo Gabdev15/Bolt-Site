@@ -118,8 +118,8 @@ const Navbar = ({ onSignIn, onDashboard, onAdmin, isAdmin, user }) => {
                 )}
                 <div className="flex items-center justify-between text-white">
                   <button type="button" className="flex items-center text-sm font-bold bg-white/10 px-4 py-2 rounded-full">
-                    <img src={FR_FLAG} alt="FR" className="w-5 h-auto mr-2 rounded-sm" />
-                    <span>FR</span>
+                    <img src={EN_FLAG} alt="EN" className="w-5 h-auto mr-2 rounded-sm" />
+                    <span>EN</span>
                   </button>
                 </div>
               </div>
