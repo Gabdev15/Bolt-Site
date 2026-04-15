@@ -3,13 +3,13 @@ import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   DollarSign, ChevronDown, ChevronUp, X, LayoutDashboard,
   Car, User, Phone, Mail, Calendar, Timer, Users,
-  Trash2, Plus, Search,
+  Trash2, Plus, Search, Minus,
 } from 'lucide-react';
 import { collection, onSnapshot, query, updateDoc, doc, deleteDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
-import { ADMIN } from '../data/content';
+import { ADMIN, BOOKING_PAGE } from '../data/content';
 
 const STATUS_LABELS = {
   pending:   'En attente',
@@ -252,10 +252,20 @@ function OrderCard({ order, onSelect, onDelete, formatDate }) {
 }
 
 /* ─── Create order modal ─── */
+const TODAY = new Date().toISOString().split('T')[0];
+
+const TIME_OPTIONS = (() => {
+  const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
+  const [maxH] = BOOKING_PAGE.timeMax.split(':').map(Number);
+  const opts = [];
+  for (let h = minH; h <= maxH; h++) opts.push(`${String(h).padStart(2, '0')}:00`);
+  return opts;
+})();
+
 const EMPTY_FORM = {
   userId: '', userEmail: '',
   driver: { firstName: '', lastName: '', phone: '', age: '' },
-  vehicle: '', date: '', time: '', hours: 1,
+  vehicle: '', date: '', time: BOOKING_PAGE.timeMin, hours: 1,
   status: 'pending', totalPrice: 0,
 };
 
@@ -290,10 +300,14 @@ function CreateOrderModal({ users, onClose, onCreate }) {
     setShowDropdown(false);
   };
 
-  /* Auto-calc price when vehicle or hours change */
+  /* Auto-calc price; clamp hours on time change */
   const setField = (key, value) => {
     setForm(f => {
       const next = { ...f, [key]: value };
+      if (key === 'time') {
+        const max = BOOKING_PAGE.durationLimits[value] ?? 1;
+        next.hours = Math.min(f.hours, max);
+      }
       if (key === 'vehicle' || key === 'hours') {
         const veh = VEHICLES.find(v => v.id === (key === 'vehicle' ? value : next.vehicle));
         if (veh) next.totalPrice = veh.price * Number(key === 'hours' ? value : next.hours);
@@ -302,6 +316,8 @@ function CreateOrderModal({ users, onClose, onCreate }) {
     });
     setErrors(e => ({ ...e, [key]: undefined }));
   };
+
+  const maxHours = BOOKING_PAGE.durationLimits[form.time] ?? 1;
 
   const setDriver = (key, value) =>
     setForm(f => ({ ...f, driver: { ...f.driver, [key]: value } }));
@@ -421,18 +437,57 @@ function CreateOrderModal({ users, onClose, onCreate }) {
                 ))}
               </select>
               <div className="grid grid-cols-2 gap-2">
-                <input type="date" value={form.date} onChange={e => setField('date', e.target.value)} className={`${inputCls('date')} bg-white`} />
-                <input type="time" value={form.time} onChange={e => setField('time', e.target.value)} className={`${inputCls('time')} bg-white`} />
+                <input
+                  type="date"
+                  value={form.date}
+                  min={TODAY}
+                  onChange={e => setField('date', e.target.value)}
+                  className={`${inputCls('date')} bg-white`}
+                />
+                <select
+                  value={form.time}
+                  onChange={e => setField('time', e.target.value)}
+                  className={`${inputCls('time')} bg-white appearance-none`}
+                >
+                  {TIME_OPTIONS.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="relative">
-                  <input type="number" min={1} max={24} value={form.hours} onChange={e => setField('hours', e.target.value)} className={inputCls('hours')} placeholder="Durée (h)" />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">h</span>
-                </div>
-                <div className="relative">
-                  <input type="number" min={0} value={form.totalPrice} onChange={e => setField('totalPrice', e.target.value)} className={inputCls('totalPrice')} placeholder="Total" />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
-                </div>
+              {/* Hours stepper */}
+              <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setField('hours', Math.max(1, form.hours - 1))}
+                  disabled={form.hours <= 1}
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 disabled:opacity-30 transition"
+                >
+                  <Minus size={13} strokeWidth={2.5} />
+                </button>
+                <span className="font-bold text-bolt-dark text-sm tabular-nums">
+                  {form.hours} {form.hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}
+                  <span className="text-gray-400 font-normal text-xs ml-1">(max {maxHours}h)</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setField('hours', Math.min(maxHours, form.hours + 1))}
+                  disabled={form.hours >= maxHours}
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 disabled:opacity-30 transition"
+                >
+                  <Plus size={13} strokeWidth={2.5} />
+                </button>
+              </div>
+              {/* Total price */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0}
+                  value={form.totalPrice}
+                  onChange={e => setField('totalPrice', e.target.value)}
+                  className={inputCls('totalPrice')}
+                  placeholder="Total"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
               </div>
             </div>
           </div>
