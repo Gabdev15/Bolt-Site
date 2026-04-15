@@ -541,7 +541,7 @@ export default function AdminDashboard({ onBack }) {
             </button>
             <span className="text-gray-700 hidden sm:inline" aria-hidden="true">·</span>
             <div className="flex items-center gap-1.5 text-white" aria-label="Administration">
-              <LayoutDashboard size={15} className="text-bolt-green" aria-hidden="true" />
+              <LayoutDashboard size={15} className="text-gray-400" aria-hidden="true" />
               <span className="font-bold text-sm hidden sm:inline">Administration</span>
             </div>
           </div>
