@@ -433,7 +433,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
               >
                 <option value="">Choisir un véhicule *</option>
                 {VEHICLES.map(v => (
-                  <option key={v.id} value={v.id}>{v.name} — {v.category} ({v.price}$/j)</option>
+                  <option key={v.id} value={v.id}>{v.name} — {v.category} ({v.price}${BOOKING_PAGE.perHour})</option>
                 ))}
               </select>
               <div className="grid grid-cols-2 gap-2">
