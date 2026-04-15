@@ -409,6 +409,7 @@ function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
 
 export default function AdminDashboard({ onBack }) {
   const [activeTab, setActiveTab] = useState('orders');
+  const [showRevenue, setShowRevenue] = useState(false);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -586,10 +587,32 @@ export default function AdminDashboard({ onBack }) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {/* Desktop: all 5 in a row */}
+        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {STAT_CONFIG.map(cfg => (
             <StatCard key={cfg.key} {...cfg} value={stats[cfg.key]} />
           ))}
+        </div>
+        {/* Mobile: 2x2 grid + revenus toggle */}
+        <div className="sm:hidden space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            {STAT_CONFIG.filter(cfg => cfg.key !== 'revenue').map(cfg => (
+              <StatCard key={cfg.key} {...cfg} value={stats[cfg.key]} />
+            ))}
+          </div>
+          {showRevenue && (
+            <StatCard {...STAT_CONFIG.find(c => c.key === 'revenue')} value={stats.revenue} />
+          )}
+          <button
+            onClick={() => setShowRevenue(v => !v)}
+            className="w-full text-xs font-semibold text-gray-400 hover:text-bolt-dark transition flex items-center justify-center gap-1.5 py-1"
+          >
+            {showRevenue ? (
+              <><ChevronUp size={13} /> Masquer les revenus</>
+            ) : (
+              <><ChevronDown size={13} /> Voir les revenus</>
+            )}
+          </button>
         </div>
 
         {/* Orders */}
