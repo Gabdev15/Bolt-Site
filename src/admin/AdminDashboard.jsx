@@ -533,14 +533,15 @@ export default function AdminDashboard({ onBack }) {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onBack}
+              aria-label="Retour"
               className="flex items-center gap-1.5 text-gray-400 hover:text-white transition text-sm font-medium"
             >
-              <ArrowLeft size={15} />
+              <ArrowLeft size={15} aria-hidden="true" />
               <span className="hidden sm:inline">Retour</span>
             </button>
-            <span className="text-gray-700 hidden sm:inline">·</span>
-            <div className="flex items-center gap-1.5 text-white">
-              <LayoutDashboard size={15} className="text-bolt-green" />
+            <span className="text-gray-700 hidden sm:inline" aria-hidden="true">·</span>
+            <div className="flex items-center gap-1.5 text-white" aria-label="Administration">
+              <LayoutDashboard size={15} className="text-bolt-green" aria-hidden="true" />
               <span className="font-bold text-sm hidden sm:inline">Administration</span>
             </div>
           </div>
@@ -548,24 +549,26 @@ export default function AdminDashboard({ onBack }) {
           <div className="flex items-center gap-1">
             <button
               onClick={() => setActiveTab('orders')}
+              aria-pressed={activeTab === 'orders'}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 activeTab === 'orders'
                   ? 'bg-white/10 text-white'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              <Package size={13} />
+              <Package size={13} aria-hidden="true" />
               Commandes
             </button>
             <button
               onClick={() => setActiveTab('users')}
+              aria-pressed={activeTab === 'users'}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 activeTab === 'users'
                   ? 'bg-white/10 text-white'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              <Users size={13} />
+              <Users size={13} aria-hidden="true" />
               Utilisateurs
             </button>
           </div>
