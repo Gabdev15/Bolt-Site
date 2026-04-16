@@ -8,6 +8,10 @@ export const VEHICLES = [
     img: '/honda.png',
     locked: true,
     desc: 'Compacte et agile pour la ville.',
+    seats: 5,
+    transmission: 'Auto',
+    range: '650 km',
+    tag: 'Essence',
   },
   {
     id: 'leaf',
@@ -17,6 +21,10 @@ export const VEHICLES = [
     img: '/nissanleaf.png',
     locked: true,
     desc: '100% électrique, zéro émission.',
+    seats: 5,
+    transmission: 'Auto',
+    range: '385 km',
+    tag: '0 émission',
   },
   {
     id: 'prius',
@@ -26,6 +34,10 @@ export const VEHICLES = [
     img: '/toyotaprius.png',
     locked: false,
     desc: 'Hybride, économique et confortable.',
+    seats: 5,
+    transmission: 'Auto',
+    range: '900 km',
+    tag: 'Populaire',
   },
   {
     id: 'lexus',
@@ -35,6 +47,10 @@ export const VEHICLES = [
     img: '/lexuses.png',
     locked: true,
     desc: 'Premium, silencieuse et raffinée.',
+    seats: 5,
+    transmission: 'Auto',
+    range: '750 km',
+    tag: 'Premium',
   },
 ];
 
