@@ -276,6 +276,12 @@ function CreateOrderModal({ users, onClose, onCreate }) {
   const [saving, setSaving]       = useState(false);
   const [errors, setErrors]       = useState({});
   const [createError, setCreateError] = useState(null);
+  const [closing, setClosing]     = useState(false);
+
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => onClose(), 200);
+  };
 
   /* Build user list from Firestore users */
   const userList = users.map(u => ({
@@ -356,7 +362,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
         totalPrice:   Number(form.totalPrice),
         createdAt:    serverTimestamp(),
       });
-      onClose();
+      handleClose();
     } catch (err) {
       setCreateError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
@@ -368,12 +374,12 @@ function CreateOrderModal({ users, onClose, onCreate }) {
   const inputCls = (k) => `w-full border rounded-xl px-3 py-2.5 text-sm outline-none transition ${err(k)}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className={`modal-backdrop${closing ? ' closing' : ''} fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm`}>
+      <div className={`modal-card${closing ? ' closing' : ''} bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]`}>
 
         {/* Header */}
         <div className="bg-bolt-dark px-5 sm:px-7 pt-6 pb-5 relative shrink-0">
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white transition">
+          <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white transition">
             <X size={16} />
           </button>
           <p className="text-xs text-gray-400 font-mono mb-1">Nouvelle commande</p>
@@ -528,7 +534,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
             <p className="text-xs text-red-500 mb-3 text-center">{createError}</p>
           )}
           <div className="flex gap-2">
-            <button onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
+            <button onClick={handleClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
               Annuler
             </button>
             <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-xl text-sm font-bold bg-bolt-dark text-white hover:bg-bolt-dark/90 transition disabled:opacity-40">
