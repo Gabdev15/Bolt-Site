@@ -5,7 +5,7 @@ import {
   Car, User, Phone, Mail, Calendar, Timer, Users,
   Trash2, Plus, Search, Minus,
 } from 'lucide-react';
-import { collection, onSnapshot, query, updateDoc, doc, deleteDoc, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, updateDoc, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
@@ -252,7 +252,7 @@ function OrderCard({ order, onSelect, onDelete, formatDate }) {
 }
 
 /* ─── Create order modal ─── */
-const TODAY = new Date().toISOString().split('T')[0];
+const TODAY = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 
 const TIME_OPTIONS = (() => {
   const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
@@ -275,6 +275,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [saving, setSaving]       = useState(false);
   const [errors, setErrors]       = useState({});
+  const [createError, setCreateError] = useState(null);
 
   /* Build user list from Firestore users */
   const userList = users.map(u => ({
@@ -307,6 +308,8 @@ function CreateOrderModal({ users, onClose, onCreate }) {
       if (key === 'time') {
         const max = BOOKING_PAGE.durationLimits[value] ?? 1;
         next.hours = Math.min(f.hours, max);
+        const veh = VEHICLES.find(v => v.id === next.vehicle);
+        if (veh) next.totalPrice = veh.price * Number(next.hours);
       }
       if (key === 'vehicle' || key === 'hours') {
         const veh = VEHICLES.find(v => v.id === (key === 'vehicle' ? value : next.vehicle));
@@ -320,7 +323,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
   const maxHours = BOOKING_PAGE.durationLimits[form.time] ?? 1;
 
   const setDriver = (key, value) =>
-    setForm(f => ({ ...f, driver: { ...f.driver, [key]: value } }));
+    setForm(f => ({ ...f, userId: null, driver: { ...f.driver, [key]: value } }));
 
   const validate = () => {
     const e = {};
@@ -336,20 +339,26 @@ function CreateOrderModal({ users, onClose, onCreate }) {
   const submit = async () => {
     if (!validate()) return;
     setSaving(true);
+    setCreateError(null);
     try {
+      const selectedVehicle = VEHICLES.find(v => v.id === form.vehicle);
       await onCreate({
-        userId:     form.userId,
-        userEmail:  form.userEmail,
-        driver:     { firstName: form.driver.firstName, lastName: form.driver.lastName, phone: form.driver.phone, age: form.driver.age ? Number(form.driver.age) : '' },
-        vehicle:    form.vehicle,
-        date:       form.date,
-        time:       form.time,
-        hours:      Number(form.hours),
-        status:     form.status,
-        totalPrice: Number(form.totalPrice),
-        createdAt:  Timestamp.now(),
+        userId:       form.userId,
+        userEmail:    form.userEmail,
+        driver:       { firstName: form.driver.firstName, lastName: form.driver.lastName, phone: form.driver.phone, age: form.driver.age ? Number(form.driver.age) : '' },
+        vehicle:      form.vehicle,
+        vehicleName:  selectedVehicle?.name ?? '',
+        vehiclePrice: selectedVehicle ? Number(selectedVehicle.price) : 0,
+        date:         form.date,
+        time:         form.time,
+        hours:        Number(form.hours),
+        status:       form.status,
+        totalPrice:   Number(form.totalPrice),
+        createdAt:    serverTimestamp(),
       });
       onClose();
+    } catch (err) {
+      setCreateError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setSaving(false);
     }
@@ -393,7 +402,8 @@ function CreateOrderModal({ users, onClose, onCreate }) {
                     <button
                       key={u.uid ?? u.email}
                       type="button"
-                      onMouseDown={() => selectClient(u)}
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => selectClient(u)}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 transition text-left"
                     >
                       <div className="w-7 h-7 rounded-full bg-bolt-green/10 flex items-center justify-center shrink-0">
@@ -417,7 +427,7 @@ function CreateOrderModal({ users, onClose, onCreate }) {
               <div>
                 <input value={form.driver.lastName} onChange={e => setDriver('lastName', e.target.value)} placeholder="Nom *" className={inputCls('lastName')} />
               </div>
-              <input value={form.userEmail} onChange={e => setField('userEmail', e.target.value)} placeholder="Email" className={inputCls('userEmail')} />
+              <input value={form.userEmail} onChange={e => { setForm(f => ({ ...f, userId: null, userEmail: e.target.value })); setErrors(er => ({ ...er, userEmail: undefined })); }} placeholder="Email" className={inputCls('userEmail')} />
               <input value={form.driver.phone} onChange={e => setDriver('phone', e.target.value)} placeholder="Téléphone" className={inputCls('phone')} />
             </div>
           </div>
@@ -513,13 +523,18 @@ function CreateOrderModal({ users, onClose, onCreate }) {
         </div>
 
         {/* Footer */}
-        <div className="px-5 sm:px-7 py-4 border-t border-gray-100 flex gap-2 shrink-0">
-          <button onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
-            Annuler
-          </button>
-          <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-xl text-sm font-bold bg-bolt-dark text-white hover:bg-bolt-dark/90 transition disabled:opacity-40">
-            {saving ? '…' : 'Créer la commande'}
-          </button>
+        <div className="px-5 sm:px-7 py-4 border-t border-gray-100 shrink-0">
+          {createError && (
+            <p className="text-xs text-red-500 mb-3 text-center">{createError}</p>
+          )}
+          <div className="flex gap-2">
+            <button onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
+              Annuler
+            </button>
+            <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-xl text-sm font-bold bg-bolt-dark text-white hover:bg-bolt-dark/90 transition disabled:opacity-40">
+              {saving ? '…' : 'Créer la commande'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

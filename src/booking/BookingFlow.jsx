@@ -136,7 +136,7 @@ const StepDateTime = ({ date, setDate, time, setTime, hours, setHours, car }) =>
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
+            min={(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })()}
             className="flex-1 outline-none text-sm sm:text-base bg-transparent font-medium min-w-0 text-left"
           />
         </div>
