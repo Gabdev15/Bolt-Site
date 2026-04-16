@@ -3,12 +3,13 @@ import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   DollarSign, ChevronDown, ChevronUp, X, LayoutDashboard,
   Car, User, Phone, Mail, Calendar, Timer, Users,
+  Trash2, Plus, Search, Minus,
 } from 'lucide-react';
-import { collection, onSnapshot, query, updateDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, updateDoc, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { BOLT_LOGO_DARK } from '../data/assets';
 import { VEHICLES } from '../data/vehicles';
-import { ADMIN } from '../data/content';
+import { ADMIN, BOOKING_PAGE } from '../data/content';
 
 const STATUS_LABELS = {
   pending:   'En attente',
@@ -181,7 +182,8 @@ function InfoRow({ icon: Icon, label, value }) {
 }
 
 /* ─── Mobile order card ─── */
-function OrderCard({ order, onSelect, formatDate, formatCreatedAt }) {
+function OrderCard({ order, onSelect, onDelete, formatDate }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const firstName = order.driver?.firstName ?? '';
   const lastName  = order.driver?.lastName  ?? '';
   const fullName  = `${firstName} ${lastName}`.trim() || '—';
@@ -189,12 +191,12 @@ function OrderCard({ order, onSelect, formatDate, formatCreatedAt }) {
   const category = VEHICLE_CATEGORY[order.vehicle];
 
   return (
-    <div
-      onClick={() => onSelect(order)}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3 active:bg-gray-50 transition cursor-pointer"
-    >
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div
+          className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
+          onClick={() => onSelect(order)}
+        >
           <div className="w-9 h-9 rounded-full bg-bolt-green/10 flex items-center justify-center shrink-0">
             <span className="text-[11px] font-bold text-bolt-green">{initials(firstName, lastName)}</span>
           </div>
@@ -203,10 +205,39 @@ function OrderCard({ order, onSelect, formatDate, formatCreatedAt }) {
             <p className="text-xs text-gray-400 truncate">{vehicleName}{category ? ` · ${category}` : ''}</p>
           </div>
         </div>
-        <StatusBadge status={order.status} />
+        <div className="flex items-center gap-2 shrink-0">
+          <StatusBadge status={order.status} />
+          {confirmDelete ? (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => onDelete(order.id)}
+                className="text-[10px] font-bold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition"
+              >
+                Supprimer
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-[10px] font-bold text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-lg transition"
+              >
+                Non
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={e => { e.stopPropagation(); setConfirmDelete(true); }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition"
+              aria-label="Supprimer la commande"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-400">
+      <div
+        className="flex items-center justify-between text-xs text-gray-400 cursor-pointer"
+        onClick={() => onSelect(order)}
+      >
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <Calendar size={11} />
@@ -215,6 +246,302 @@ function OrderCard({ order, onSelect, formatDate, formatCreatedAt }) {
           <span>{order.time} · {order.hours}h</span>
         </div>
         <span className="font-bold text-bolt-dark text-sm">${order.totalPrice ?? 0}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Create order modal ─── */
+const TODAY = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
+
+const TIME_OPTIONS = (() => {
+  const [minH] = BOOKING_PAGE.timeMin.split(':').map(Number);
+  const [maxH] = BOOKING_PAGE.timeMax.split(':').map(Number);
+  const opts = [];
+  for (let h = minH; h <= maxH; h++) opts.push(`${String(h).padStart(2, '0')}:00`);
+  return opts;
+})();
+
+const EMPTY_FORM = {
+  userId: '', userEmail: '',
+  driver: { firstName: '', lastName: '', phone: '', age: '' },
+  vehicle: '', date: '', time: BOOKING_PAGE.timeMin, hours: 1,
+  status: 'pending', totalPrice: 0,
+};
+
+function CreateOrderModal({ users, onClose, onCreate }) {
+  const [form, setForm]           = useState(EMPTY_FORM);
+  const [clientSearch, setClientSearch] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [saving, setSaving]       = useState(false);
+  const [errors, setErrors]       = useState({});
+  const [createError, setCreateError] = useState(null);
+  const [closing, setClosing]     = useState(false);
+
+  const handleClose = () => {
+    setClosing(true);
+    setTimeout(() => onClose(), 200);
+  };
+
+  /* Build user list from Firestore users */
+  const userList = users.map(u => ({
+    uid:       u.uid ?? u.id,
+    email:     u.email ?? '—',
+    firstName: u.displayName?.split(' ')[0] ?? '',
+    lastName:  u.displayName?.split(' ').slice(1).join(' ') ?? '',
+  }));
+
+  const filteredUsers = userList.filter(u => {
+    const q = clientSearch.toLowerCase();
+    return `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(q);
+  });
+
+  const selectClient = (u) => {
+    setForm(f => ({
+      ...f,
+      userId: u.uid,
+      userEmail: u.email,
+      driver: { ...f.driver, firstName: u.firstName, lastName: u.lastName },
+    }));
+    setClientSearch(`${u.firstName} ${u.lastName}`.trim() || u.email);
+    setShowDropdown(false);
+  };
+
+  /* Auto-calc price; clamp hours on time change */
+  const setField = (key, value) => {
+    setForm(f => {
+      const next = { ...f, [key]: value };
+      if (key === 'time') {
+        const max = BOOKING_PAGE.durationLimits[value] ?? 1;
+        next.hours = Math.min(f.hours, max);
+        const veh = VEHICLES.find(v => v.id === next.vehicle);
+        if (veh) next.totalPrice = veh.price * Number(next.hours);
+      }
+      if (key === 'vehicle' || key === 'hours') {
+        const veh = VEHICLES.find(v => v.id === (key === 'vehicle' ? value : next.vehicle));
+        if (veh) next.totalPrice = veh.price * Number(key === 'hours' ? value : next.hours);
+      }
+      return next;
+    });
+    setErrors(e => ({ ...e, [key]: undefined }));
+  };
+
+  const maxHours = BOOKING_PAGE.durationLimits[form.time] ?? 1;
+
+  const setDriver = (key, value) =>
+    setForm(f => ({ ...f, userId: null, driver: { ...f.driver, [key]: value } }));
+
+  const validate = () => {
+    const e = {};
+    if (!form.driver.firstName) e.firstName = true;
+    if (!form.driver.lastName)  e.lastName  = true;
+    if (!form.vehicle)          e.vehicle   = true;
+    if (!form.date)             e.date      = true;
+    if (!form.time)             e.time      = true;
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const submit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    setCreateError(null);
+    try {
+      const selectedVehicle = VEHICLES.find(v => v.id === form.vehicle);
+      await onCreate({
+        userId:       form.userId,
+        userEmail:    form.userEmail,
+        driver:       { firstName: form.driver.firstName, lastName: form.driver.lastName, phone: form.driver.phone, age: form.driver.age ? Number(form.driver.age) : '' },
+        vehicle:      form.vehicle,
+        vehicleName:  selectedVehicle?.name ?? '',
+        vehiclePrice: selectedVehicle ? Number(selectedVehicle.price) : 0,
+        date:         form.date,
+        time:         form.time,
+        hours:        Number(form.hours),
+        status:       form.status,
+        totalPrice:   Number(form.totalPrice),
+        createdAt:    serverTimestamp(),
+      });
+      handleClose();
+    } catch (err) {
+      setCreateError(err.message || 'Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const err = (k) => errors[k] ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-bolt-green';
+  const inputCls = (k) => `w-full border rounded-xl px-3 py-2.5 text-sm outline-none transition ${err(k)}`;
+
+  return (
+    <div className={`modal-backdrop${closing ? ' closing' : ''} fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm`}>
+      <div className={`modal-card${closing ? ' closing' : ''} bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]`}>
+
+        {/* Header */}
+        <div className="bg-bolt-dark px-5 sm:px-7 pt-6 pb-5 relative shrink-0">
+          <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white transition">
+            <X size={16} />
+          </button>
+          <p className="text-xs text-gray-400 font-mono mb-1">Nouvelle commande</p>
+          <h2 className="text-lg font-bold text-white">Créer manuellement</h2>
+        </div>
+
+        <div className="overflow-y-auto px-5 sm:px-7 py-5 space-y-5">
+
+          {/* Client */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Client</p>
+            <div className="relative">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  value={clientSearch}
+                  onChange={e => { setClientSearch(e.target.value); setShowDropdown(true); }}
+                  onFocus={() => setShowDropdown(true)}
+                  placeholder="Rechercher un client inscrit…"
+                  className="w-full border border-gray-200 focus:border-bolt-green rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none transition"
+                />
+              </div>
+              {showDropdown && filteredUsers.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-100 rounded-2xl shadow-lg max-h-48 overflow-y-auto">
+                  {filteredUsers.slice(0, 8).map(u => (
+                    <button
+                      key={u.uid ?? u.email}
+                      type="button"
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => selectClient(u)}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-gray-50 transition text-left"
+                    >
+                      <div className="w-7 h-7 rounded-full bg-bolt-green/10 flex items-center justify-center shrink-0">
+                        <span className="text-[10px] font-bold text-bolt-green">
+                          {((u.firstName[0] ?? '') + (u.lastName[0] ?? '')).toUpperCase() || u.email[0]?.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-bolt-dark truncate">{`${u.firstName} ${u.lastName}`.trim() || '—'}</p>
+                        <p className="text-[11px] text-gray-400 truncate">{u.email}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div>
+                <input value={form.driver.firstName} onChange={e => setDriver('firstName', e.target.value)} placeholder="Prénom *" className={inputCls('firstName')} />
+              </div>
+              <div>
+                <input value={form.driver.lastName} onChange={e => setDriver('lastName', e.target.value)} placeholder="Nom *" className={inputCls('lastName')} />
+              </div>
+              <input value={form.userEmail} onChange={e => { setForm(f => ({ ...f, userId: null, userEmail: e.target.value })); setErrors(er => ({ ...er, userEmail: undefined })); }} placeholder="Email" className={inputCls('userEmail')} />
+              <input value={form.driver.phone} onChange={e => setDriver('phone', e.target.value)} placeholder="Téléphone" className={inputCls('phone')} />
+            </div>
+          </div>
+
+          {/* Réservation */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Réservation</p>
+            <div className="space-y-2">
+              <select
+                value={form.vehicle}
+                onChange={e => setField('vehicle', e.target.value)}
+                className={`${inputCls('vehicle')} bg-white`}
+              >
+                <option value="">Choisir un véhicule *</option>
+                {VEHICLES.map(v => (
+                  <option key={v.id} value={v.id}>{v.name} — {v.category} ({v.price}${BOOKING_PAGE.perHour})</option>
+                ))}
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="date"
+                  value={form.date}
+                  min={TODAY}
+                  onChange={e => setField('date', e.target.value)}
+                  className={`${inputCls('date')} bg-white`}
+                />
+                <select
+                  value={form.time}
+                  onChange={e => setField('time', e.target.value)}
+                  className={`${inputCls('time')} bg-white appearance-none`}
+                >
+                  {TIME_OPTIONS.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Hours stepper */}
+              <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setField('hours', Math.max(1, form.hours - 1))}
+                  disabled={form.hours <= 1}
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 disabled:opacity-30 transition"
+                >
+                  <Minus size={13} strokeWidth={2.5} />
+                </button>
+                <span className="font-bold text-bolt-dark text-sm tabular-nums">
+                  {form.hours} {form.hours > 1 ? BOOKING_PAGE.hourPlural : BOOKING_PAGE.hourSingular}
+                  <span className="text-gray-400 font-normal text-xs ml-1">(max {maxHours}h)</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setField('hours', Math.min(maxHours, form.hours + 1))}
+                  disabled={form.hours >= maxHours}
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-bolt-green hover:text-bolt-green hover:bg-bolt-green/5 disabled:opacity-30 transition"
+                >
+                  <Plus size={13} strokeWidth={2.5} />
+                </button>
+              </div>
+              {/* Total price */}
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0}
+                  value={form.totalPrice}
+                  onChange={e => setField('totalPrice', e.target.value)}
+                  className={inputCls('totalPrice')}
+                  placeholder="Total"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Statut */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Statut</p>
+            <div className="flex gap-2">
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setField('status', key)}
+                  className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition ${
+                    form.status === key ? STATUS_STYLES[key] : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 sm:px-7 py-4 border-t border-gray-100 shrink-0">
+          {createError && (
+            <p className="text-xs text-red-500 mb-3 text-center">{createError}</p>
+          )}
+          <div className="flex gap-2">
+            <button onClick={handleClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition">
+              Annuler
+            </button>
+            <button onClick={submit} disabled={saving} className="flex-1 py-3 rounded-xl text-sm font-bold bg-bolt-dark text-white hover:bg-bolt-dark/90 transition disabled:opacity-40">
+              {saving ? '…' : 'Créer la commande'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -410,6 +737,7 @@ function UsersSection({ orders, users: rawUsers, usersLoading, usersError }) {
 export default function AdminDashboard({ onBack }) {
   const [activeTab, setActiveTab] = useState('orders');
   const [showRevenue, setShowRevenue] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -455,6 +783,19 @@ export default function AdminDashboard({ onBack }) {
     } catch (err) {
       console.error('Erreur mise à jour statut:', err);
     }
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    try {
+      await deleteDoc(doc(db, 'orders', orderId));
+      if (selected?.id === orderId) setSelected(null);
+    } catch (err) {
+      console.error('Erreur suppression commande:', err);
+    }
+  };
+
+  const handleCreateOrder = async (data) => {
+    await addDoc(collection(db, 'orders'), data);
   };
 
   const toggleSort = (field) => {
@@ -623,9 +964,18 @@ export default function AdminDashboard({ onBack }) {
 
           {/* Toolbar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="font-bold text-bolt-dark text-sm">
-              Commandes <span className="text-gray-400 font-normal">({filtered.length})</span>
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="font-bold text-bolt-dark text-sm">
+                Commandes <span className="text-gray-400 font-normal">({filtered.length})</span>
+              </h2>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-1.5 bg-bolt-dark text-white text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-bolt-dark/80 transition"
+              >
+                <Plus size={13} aria-hidden="true" />
+                Nouvelle
+              </button>
+            </div>
             {/* Segmented slider — scrollable on mobile */}
             <div className="overflow-x-auto pb-0.5 -mx-1 px-1">
               <div
@@ -702,8 +1052,8 @@ export default function AdminDashboard({ onBack }) {
                     key={order.id}
                     order={order}
                     onSelect={setSelected}
+                    onDelete={handleDeleteOrder}
                     formatDate={formatDate}
-                    formatCreatedAt={formatCreatedAt}
                   />
                 ))}
               </div>
@@ -723,7 +1073,7 @@ export default function AdminDashboard({ onBack }) {
                             ) : label}
                           </th>
                         ))}
-                        <th className="px-4 py-3" />
+                        <th className="px-4 py-3 w-16" />
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -773,12 +1123,26 @@ export default function AdminDashboard({ onBack }) {
                               <StatusBadge status={order.status} />
                             </td>
                             <td className="px-4 py-3.5">
-                              <button
-                                onClick={e => { e.stopPropagation(); setSelected(order); }}
-                                className="text-[11px] font-bold text-gray-300 group-hover:text-bolt-green transition whitespace-nowrap"
-                              >
-                                Voir →
-                              </button>
+                              <div className="flex items-center gap-2 justify-end">
+                                <button
+                                  onClick={e => { e.stopPropagation(); setSelected(order); }}
+                                  className="text-[11px] font-bold text-gray-300 group-hover:text-bolt-green transition whitespace-nowrap"
+                                >
+                                  Voir →
+                                </button>
+                                <button
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    if (window.confirm(`Supprimer la commande de ${order.driver?.firstName ?? ''} ${order.driver?.lastName ?? ''} ?`)) {
+                                      handleDeleteOrder(order.id);
+                                    }
+                                  }}
+                                  className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition opacity-0 group-hover:opacity-100"
+                                  aria-label="Supprimer"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -798,6 +1162,14 @@ export default function AdminDashboard({ onBack }) {
           order={selected}
           onClose={() => setSelected(null)}
           onStatusChange={handleStatusChange}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateOrderModal
+          users={users}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateOrder}
         />
       )}
     </div>
