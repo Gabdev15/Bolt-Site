@@ -65,7 +65,7 @@ function AppContent() {
             <Features />
             <HowItWorks onStartDriving={handleBooking} />
             <Testimonial />
-            <VehicleTypes />
+            <VehicleTypes onStartDriving={handleBooking} />
             <PricingTabs onStartDriving={handleBooking} />
             <CitySection onStartDriving={handleBooking} />
             <FAQ />
