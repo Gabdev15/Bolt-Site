@@ -1,66 +1,67 @@
-import React from 'react';
-import { Lock } from 'lucide-react';
-import { VEHICLES } from '../../data/vehicles';
+import React, { useEffect, useRef, useState } from 'react';
 import { VEHICLE_TYPES } from '../../data/content';
 
-const VehicleCard = ({ vehicle }) => (
-  <div className="group flex flex-col">
-    {/* Image area */}
-    <div className="relative bg-gray-100 rounded-2xl overflow-hidden mb-5 flex items-center justify-center h-[460px]">
-      {vehicle.locked && (
-        <div className="absolute inset-0 bg-white/30 z-10" />
-      )}
-      <img
-        src={vehicle.img}
-        alt={vehicle.name}
-        className={`w-4/5 object-contain transition-transform duration-500 group-hover:scale-105 ${vehicle.locked ? 'grayscale opacity-50' : ''}`}
-      />
-      {vehicle.locked && (
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-400 text-xs font-medium px-2.5 py-1 rounded-full z-20">
-          <Lock size={10} />
-          Prochainement
-        </span>
-      )}
-      {!vehicle.locked && (
-        <span className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white text-gray-500 text-xs px-2.5 py-1 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-bolt-green" />
-          Disponible
-        </span>
-      )}
-    </div>
+const FLEET_IMAGE = 'https://assets.cms.bolt.eu/Index_DT_Media_08_2b9a617d79.webp';
 
-    {/* Info */}
-    <div className="flex flex-col gap-1 px-1">
-      <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{vehicle.category}</span>
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-xl font-bold text-bolt-dark">{vehicle.name}</h3>
-        {!vehicle.locked && (
-          <span className="text-lg font-bold text-bolt-dark">${vehicle.price}<span className="text-sm font-normal text-gray-400">/heure</span></span>
-        )}
-      </div>
-      <p className="text-gray-400 text-sm">{vehicle.desc}</p>
-    </div>
-  </div>
-);
+const VehicleTypes = ({ onStartDriving }) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
 
-const VehicleTypes = () => (
-  <div id="flottes" className="py-32 bg-white">
-    <div className="max-w-[1600px] mx-auto px-6 md:px-12">
-      <div className="mb-16">
-        <h2 className="text-5xl md:text-6xl font-bold mb-4 text-bolt-dark leading-tight">
-          {VEHICLE_TYPES.title}
-        </h2>
-        <p className="text-xl text-gray-500 max-w-2xl">
-          {VEHICLE_TYPES.subtitle}
-        </p>
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.25 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div id="flottes" className="relative min-h-screen overflow-hidden bg-white">
+      <div className="absolute inset-0">
+        <div
+          ref={ref}
+          className={`absolute inset-0 transition-all duration-[1100ms] ease-out overflow-hidden ${
+            visible ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.99] rounded-[4rem]'
+          }`}
+        >
+          <img
+            src={FLEET_IMAGE}
+            alt="Flotte Bolt"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/10" />
+
+          <div className="absolute left-1/2 bottom-32 -translate-x-1/2 px-4">
+            <button
+              onClick={onStartDriving}
+              className="inline-flex items-center gap-3 bg-bolt-green text-white font-bold text-lg px-12 py-5 rounded-full transition-all duration-150 hover:bg-bolt-green-dark shadow-lg shadow-bolt-green/30"
+            >
+              Réserver maintenant
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-        {VEHICLES.map(v => (
-          <VehicleCard key={v.id} vehicle={v} />
-        ))}
+
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-32 text-center text-white">
+        <div className="mb-16">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+            {VEHICLE_TYPES.title}
+          </h2>
+          <p className="text-xl text-white/85 max-w-3xl mx-auto">
+            {VEHICLE_TYPES.subtitle}
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default VehicleTypes;
