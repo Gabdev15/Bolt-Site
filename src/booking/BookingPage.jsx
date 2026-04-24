@@ -78,6 +78,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
   const canConfirm = step2Done && driver.firstName && driver.lastName && driver.age && driver.phone && !isNaN(parsedAge) && parsedAge >= 18;
 
   const selectedVehicle = VEHICLES.find(v => v.id === vehicle);
+  const bookingVehicles = VEHICLES.filter(v => v.id !== 'fordkuga');
 
   const [paying, setPaying] = useState(false);
 
@@ -230,7 +231,7 @@ export default function BookingPage({ onClose, user, onSignIn }) {
                 <h2 className="text-2xl font-bold text-bolt-dark">{BOOKING_PAGE.steps.vehicle}</h2>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-                {VEHICLES.map(v => (
+                {bookingVehicles.map(v => (
                   <button
                     key={v.id}
                     type="button"
